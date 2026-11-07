@@ -54,7 +54,8 @@
     "test": "node --experimental-strip-types --test src/core/*.test.ts",
     "check": "svelte-check --tsconfig ./webview/tsconfig.json",
     "package": "npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository",
-    "test:e2e": "npm run build && xvfb-run -a node out/e2e/run.js"
+    "test:e2e": "npm run build && xvfb-run -a node out/e2e/run.js",
+    "test:gestures": "node --test gesture-harness/*.test.mjs"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.2.0",

@@ -149,4 +149,14 @@ SCCR takes the lowest rating of any device, assemblies included.
 npm test                 # core: ops, canonical JSON, PDF draft vs issued
 npm run check            # svelte-check
 SEPIA_E2E_CODE=/usr/share/code/code xvfb-run -a node out/e2e/run.js   # real VS Code
+npm run build && npm run test:gestures   # the sheet editor under real mouse and keys
 ```
+
+`test:gestures` loads the built webview in headless Chrome and drives it
+with real pointer and key input over the DevTools protocol: drag a part on a
+ladder and on a power sheet, drop on a taken cell, drag one in from Not
+drawn, Delete, Escape mid-drag, select a wire, pan, zoom, page through the
+wire list. Each drag checks that the drop target shown mid-drag is the cell
+the op names and the cell the part is drawn in after the host applies it.
+It needs Chrome on `PATH`; `GESTURE_CLIPS=<dir>` records each test to an
+mp4. See [gesture-harness/README.md](gesture-harness/README.md).
