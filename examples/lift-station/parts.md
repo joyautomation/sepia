@@ -149,8 +149,13 @@ not a person (design.md §5).
    2 kVA would carry that at 90 %. 3 kVA leaves room for the A/C's 32 A
    inrush. **Changed 11-07: 2.5 kVA, BLOCK CT-250-048-12-0.** AutomationDirect
    has no 3 kVA 480:120 V unit (the BLOCK CT series stops at 2.5 kVA, and
-   Hammond's SP3000MQMJ was retired). 1800 VA on 2.5 kVA is 72 % loaded,
-   with 700 VA of headroom for the A/C's start.
+   Hammond's SP3000MQMJ was retired). Running: 1800 VA on 2.5 kVA is 72 %.
+   Starting: the A/C's 32.3 A inrush is 3.9 kVA for a moment, on top of
+   about 1.1 kVA of everything else, so 5.0 kVA, or 2.0 × rating. The sag
+   is roughly 1.9 %Z × 2.0 ≈ 4 %, so the secondary holds about 115 V,
+   well above the 85 % (102 V) a contactor coil needs to stay in. BLOCK
+   doesn't publish inrush VA for the CT series; this estimate is the
+   check, and it ignores the start's power factor.
 5. **Drive:** GS4-4015 holds. The pump is 15 hp at 460 V, 21 A per NEC
    Table 430.250, under the 24 A VT rating.
 6. **Overloads:** in the bypass leg only. In VFD mode the drive protects the
@@ -221,11 +226,14 @@ not a person (design.md §5).
 22. **Power wire numbering:** a power conductor takes its branch number and
     phase or terminal (103L1 into the drive, 103U out of it, 103T1 to the
     motor). The incoming conductors keep their phase names (L1, L2, L3, N).
-23. **Fused 24 VDC terminals (FTB1–7)** protect each load on its own:
+23. **Fused 24 VDC terminals (FTB1–8)** protect each load on its own:
     controller 4 A, remote I/O, switch and router 2 A each, IS barriers and
-    pump relays 1 A each, I/O field power 4 A. That totals 16 A of fusing on
-    a 10 A supply, which is normal because they don't all draw their fuse
-    rating. PNL-F12 adds up the real load.
+    pump relays 1 A each, input field power (FP+) 2 A, and the output
+    module's supply (EXT+) 2 A. That totals 16 A of fusing on a 10 A supply,
+    which is normal because they don't all draw their fuse rating. PNL-F12
+    adds up the real load. The input contacts are sourced from the +24 rail
+    rather than from FP+. It's the same supply and potential, fused
+    separately, though Moxa's guide shows the contacts on FP+.
 24. **The level loop's IS entity check passes.** KFD2-STC5-Ex1 output to
     the field: Uo 26.2 V, Io 93 mA, Po 634 mW. The FMX21's entity limits:
     Vmax 30 V, Imax 133 mA, Pmax 1 W. Every source value is under its
