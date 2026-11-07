@@ -1,0 +1,12 @@
+{
+  "manufacturer": "Eaton",
+  "catalog": "HT8JBH1DAA5",
+  "desc": "30 mm selector, 3-position maintained, 2 N.O. (HT8A blocks), NEMA 4/4X",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/pushbuttons_-z-_switches_-z-_indicators/selector_switches/ht8jbh1daa5",
+  "notes": "Contact numbering 3-4 / 13-14 follows the HT8A block convention; check against the kit drawing.",
+  "pieces": {
+    "left": { "symbol": "nema/selector-no", "terminals": ["3", "4"], "position": 0 },
+    "right": { "symbol": "nema/selector-no", "terminals": ["13", "14"], "position": 2 }
+  },
+  "mount": { "door": "30.5mm" }
+}

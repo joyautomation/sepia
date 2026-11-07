@@ -1,0 +1,28 @@
+{
+  "devices": [
+    { "tag": "SS101", "part": "eaton/ht8jbh1daa5", "desc": "Pump 1 hand-off-auto", "legend": ["HAND", "OFF", "AUTO"] },
+    { "tag": "SS102", "part": "eaton/ht8jbh1daa5", "desc": "Pump 1 VFD-off-bypass", "legend": ["VFD", "OFF", "BYP"] },
+    { "tag": "CR101", "part": "ad/782-2c-24d", "desc": "Pump 1 auto run (PLC)" },
+    { "tag": "M101A", "part": "ad/gh15et-3-00a", "desc": "Pump 1 drive output contactor" },
+    { "tag": "M101B", "part": "ad/gh15et-3-00a", "desc": "Pump 1 bypass contactor" },
+    { "tag": "OL101", "part": "ad/rtd32-2400", "desc": "Pump 1 bypass overload" },
+    { "tag": "RIO1-1", "part": "moxa/45mr-1600", "desc": "Digital inputs, slot 1", "io": { "DI0": "Pump 1 drive output closed", "DI1": "Pump 1 bypass closed" } },
+    { "tag": "RIO1-3", "part": "moxa/45mr-2601", "desc": "Digital outputs, slot 3", "io": { "DO0": "Pump 1 auto run" } }
+  ],
+  "wires": [
+    { "no": "1", "class": "ctl120", "run": ["SS101:3", "SS101:13"] },
+    { "no": "2", "class": "neu120", "run": ["M101A:A2", "M101B:A2"] },
+    { "no": "302", "class": "ctl120", "run": ["SS101:4", "CR101:14", "SS102:3", "SS102:13"] },
+    { "no": "303", "class": "ctl120", "run": ["SS102:4", "M101B:21"] },
+    { "no": "304", "class": "ctl120", "run": ["M101B:22", "M101A:A1"] },
+    { "no": "305", "class": "ctl120", "run": ["SS101:14", "CR101:11"] },
+    { "no": "306", "class": "ctl120", "run": ["SS102:14", "OL101:95"] },
+    { "no": "307", "class": "ctl120", "run": ["OL101:96", "M101A:21"] },
+    { "no": "308", "class": "ctl120", "run": ["M101A:22", "M101B:A1"] },
+    { "no": "+24", "class": "dc24", "run": ["M101A:13", "M101B:13"] },
+    { "no": "0V", "class": "dc0", "run": ["CR101:A2"] },
+    { "no": "402", "class": "dc24", "run": ["M101A:14", "RIO1-1:DI0"] },
+    { "no": "404", "class": "dc24", "run": ["RIO1-3:DO0", "CR101:A1"] },
+    { "no": "406", "class": "dc24", "run": ["M101B:14", "RIO1-1:DI1"] }
+  ]
+}

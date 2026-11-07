@@ -1,0 +1,18 @@
+{
+  "title": "Pump 1 control",
+  "kind": "ladder",
+  "lines": [300, 315],
+  "rails": ["1", "2"],
+  "place": [
+    { "piece": "SS101.left", "line": 302, "col": 1 },
+    { "piece": "SS102.left", "line": 302, "col": 4 },
+    { "piece": "M101B.il", "line": 302, "col": 6 },
+    { "piece": "M101A.coil", "line": 302, "col": 10 },
+    { "piece": "SS101.right", "line": 303, "col": 1 },
+    { "piece": "CR101.no1", "line": 303, "col": 2 },
+    { "piece": "SS102.right", "line": 305, "col": 4 },
+    { "piece": "OL101.nc", "line": 305, "col": 5 },
+    { "piece": "M101A.il", "line": 305, "col": 6 },
+    { "piece": "M101B.coil", "line": 305, "col": 10 }
+  ]
+}

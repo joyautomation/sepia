@@ -1,0 +1,18 @@
+{
+  "project": "Lift Station LS-1 Control Panel",
+  "drawing": "LS1-E",
+  "client": "Joy Automation library",
+  "company": "Joy Automation",
+  "people": { "drawn": "J. Joy", "checked": "", "approved": "" },
+  "seal": { "engineer": "", "license": "", "state": "" },
+  "sheet": "ansi-b",
+  "template": "joy-standard",
+  "numbering": { "default": "line", "field": "from-to" },
+  "service": { "volts": 480, "phases": 3, "transformerKva": 150, "transformerZPct": 2.0, "note": "assumed; parts.md assumption 1" },
+  "wireClasses": {
+    "ctl120": { "desc": "120 VAC control", "color": "red", "awg": 16 },
+    "neu120": { "desc": "120 VAC neutral", "color": "white", "awg": 16 },
+    "dc24": { "desc": "+24 VDC", "color": "blue", "awg": 18 },
+    "dc0": { "desc": "0 VDC common", "color": "white/blue", "awg": 18 }
+  }
+}

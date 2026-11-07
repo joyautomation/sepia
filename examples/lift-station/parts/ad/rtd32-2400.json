@@ -1,0 +1,12 @@
+{
+  "manufacturer": "AutomationDirect",
+  "catalog": "RTD32-2400",
+  "desc": "Thermal overload relay, 17-24 A, class 10A, mounts on GH15ET",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/RTD32-2400_cutsheet.pdf",
+  "pieces": {
+    "heater": { "symbol": "nema/ol-3p", "terminals": ["2/T1", "4/T2", "6/T3"] },
+    "nc": { "symbol": "nema/ol-nc", "terminals": ["95", "96"] },
+    "no": { "symbol": "nema/contact-no", "terminals": ["97", "98"] }
+  },
+  "mount": { "on": "contactor" }
+}

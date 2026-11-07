@@ -1,0 +1,43 @@
+{
+  "name": "sepia",
+  "displayName": "sepia",
+  "description": "Panel CAD from text files: schematics drawn from the panel's connections, ready for your own agent to edit.",
+  "version": "0.0.1",
+  "publisher": "joyauto",
+  "license": "Apache-2.0",
+  "repository": { "type": "git", "url": "git+https://github.com/joyautomation/sepia.git", "directory": "tools/vscode-sepia" },
+  "engines": { "vscode": "^1.82.0" },
+  "categories": ["Visualization", "Other"],
+  "main": "./out/extension.js",
+  "bin": { "sepia": "./out/cli.js" },
+  "activationEvents": ["workspaceContains:**/sepia.json"],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "sepia.sheetEditor",
+        "displayName": "sepia Sheet",
+        "selector": [{ "filenamePattern": "*.sheet.json" }],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      { "command": "sepia.check", "title": "sepia: Check Project" }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p . && vite build",
+    "watch": "vite build --watch",
+    "test": "node --experimental-strip-types --test src/core/*.test.ts",
+    "check": "svelte-check --tsconfig ./webview/tsconfig.json",
+    "package": "npx --yes @vscode/vsce package --no-dependencies --allow-missing-repository"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^7.2.0",
+    "@types/node": "^22.20.4",
+    "@types/vscode": "^1.82.0",
+    "svelte": "^5.56.4",
+    "svelte-check": "^4.7.6",
+    "typescript": "^6.0.3",
+    "vite": "^8.1.4"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "manufacturer": "AutomationDirect",
+  "catalog": "GH15ET-3-00A",
+  "desc": "Contactor, 15 hp 480 V, 32 A, 120 VAC coil, with 1 N.O. + 1 N.C. aux block",
+  "source": "https://www.automationdirect.com/pn/GH15ET-3-00A",
+  "notes": "Aux block catalog number to pick; terminals follow EN 50012 (13-14 N.O., 21-22 N.C.).",
+  "pieces": {
+    "coil": { "symbol": "nema/coil", "terminals": ["A1", "A2"] },
+    "power": { "symbol": "nema/contact-3p", "terminals": ["1/L1", "2/T1", "3/L2", "4/T2", "5/L3", "6/T3"] },
+    "aux": { "symbol": "nema/contact-no", "terminals": ["13", "14"] },
+    "il": { "symbol": "nema/contact-nc", "terminals": ["21", "22"] }
+  },
+  "ratings": {
+    "coil": { "volts": "120VAC", "inrush_va": 100, "sealed_va": 12 },
+    "sccr": [{ "ka": 5, "with": "standard fault" }]
+  },
+  "mount": { "din": "35mm", "size_mm": [45, 80, 91] }
+}
