@@ -16,7 +16,8 @@ the data, with drag-to-place and live checks. To try it, see
   editor.** Symbols are Svelte components, and wires are autorouted
   connections between terminals.
 - **Your agent drafts it; people adjust it.** sepia has no AI inside it.
-  Describe the panel to whatever agent you use, check what it drew, and drag or swap what's wrong. Title blocks, line numbers,
+  Describe the panel to whatever agent you use, check what it drew, and
+  drag or swap what's wrong. Title blocks, line numbers,
   cross-references and revisions are filled in from data and git tags.
 - **US ladder drawings first** (NFPA 79 / UL 508A practice); IEC later.
 
