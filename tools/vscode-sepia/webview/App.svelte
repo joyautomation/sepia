@@ -10,15 +10,22 @@
   type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
   type Drag = { ref: string; symbol: string; line: number; col: number; over: boolean; fromList: boolean; start?: { line: number; col: number } };
 
-  let project: Project | null = $state(null);
+  let project = $state<Project | null>(null);
   let sheetName = $state("");
-  let problems: Problem[] = $state([]);
+  let problems = $state<Problem[]>([]);
   let noProject = $state("");
-  let selected: Sel = $state(null);
-  let drag: Drag | null = $state(null);
+  let selected = $state<Sel>(null);
+  let drag = $state<Drag | null>(null);
   /** Optimistic placements until the host's next project message. */
   let pending: Record<string, { line: number; col: number } | null> = $state({});
   let sheetView: Sheet | undefined = $state();
+  /** Side panels hidden (P), remembered across reloads of this panel. */
+  let bare = $state(!!(vscode.getState?.() as { bare?: boolean } | undefined)?.bare);
+  function toggleBare() {
+    bare = !bare;
+    vscode.setState?.({ bare });
+    requestAnimationFrame(() => sheetView?.fit());
+  }
 
   onMount(() => {
     const onMsg = (e: MessageEvent) => {
@@ -119,6 +126,7 @@
       selected = null;
       drag = null;
     } else if (e.key === "f" || e.key === "F") sheetView?.fit();
+    else if (e.key === "p" || e.key === "P") toggleBare();
   }
 
   // Properties of the selection.
@@ -142,11 +150,12 @@
 {:else if !view}
   <div class="empty">This sheet isn't in the project's <code>sheets/</code> folder.</div>
 {:else}
-  <div class="app" class:dragging={!!drag}>
+  <div class="app" class:dragging={!!drag} class:bare>
     <header>
       <span class="title">{view.sheet.sheet.title ?? sheetName}</span>
       <span class="muted">{project.sepia.drawing} · sheet {sheetIdx + 1} of {project.sheets.length} · lines {view.sheet.sheet.lines?.join("–")}</span>
       <span class="spacer"></span>
+      <button onclick={toggleBare} title="Show or hide the side panels (P)">{bare ? "Show panels" : "Hide panels"}</button>
       <button onclick={() => sheetView?.fit()} title="Fit (F)">Fit</button>
       <button onclick={() => reveal(`sheets/${view.sheet.file}`)}>Sheet JSON</button>
       <button onclick={() => reveal("panel.json")}>panel.json</button>

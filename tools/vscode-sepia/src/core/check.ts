@@ -102,6 +102,7 @@ export function check(p: Project): Problem[] {
     }
   }
 
+  checkLineNumbers(p, ix, add);
   checkSccr(p, add);
   return out;
 }
@@ -127,4 +128,26 @@ function checkSccr(p: Project, add: (s: Problem["severity"], f: string, c: strin
   if (lowest.ka < availKa)
     add("error", "sepia.json", "sccr",
       `panel SCCR ${lowest.ka} kA (${lowest.tags.join(", ")}: ${lowest.part}) is below the available fault current: ${math}`, `"service"`);
+}
+
+/** `numbering.default: "line"` (docs/design.md §3.1): a wire takes the
+ * number of the line where it first appears, with a letter when that line
+ * starts several (302, 302A, 302B). Rails and non-numeric names (+24, 0V)
+ * are left alone. */
+function checkLineNumbers(p: Project, ix: ReturnType<typeof buildIndex>, add: (s: Problem["severity"], f: string, c: string, m: string, find?: string) => void) {
+  if ((p.sepia.numbering?.default ?? "line") !== "line") return;
+  const rails = new Set(p.sheets.flatMap((s) => s.sheet.rails ?? []));
+  for (const w of p.panel.wires ?? []) {
+    if (!w?.no || rails.has(w.no)) continue;
+    const m = /^(\d+)[A-Z]?$/.exec(w.no);
+    if (!m) continue;
+    const lines = (w.run ?? []).flatMap((t) => {
+      const info = ix.terminals.get(t);
+      return info ? (ix.placed.get(info.piece.ref) ?? []).map((a) => a.line) : [];
+    });
+    if (!lines.length) continue;
+    const first = Math.min(...lines);
+    if (Number(m[1]) !== first)
+      add("warning", "panel.json", "wire-numbering", `wire ${w.no} starts on line ${first}, so line numbering makes it ${first} or ${first}A, ${first}B…`, `"no": "${w.no}"`);
+  }
 }

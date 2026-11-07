@@ -10,7 +10,8 @@
     "moduleResolution": "bundler",
     "strict": true,
     "types": [
-      "svelte"
+      "svelte",
+      "vite/client"
     ],
     "noEmit": true,
     "skipLibCheck": true,
@@ -19,5 +20,8 @@
   "include": [
     "./**/*",
     "../src/core/**/*"
+  ],
+  "exclude": [
+    "../src/core/**/*.test.ts"
   ]
 }

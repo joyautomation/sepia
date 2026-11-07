@@ -101,13 +101,12 @@
   }
 
   const f = $derived(layout.frame);
-  const selWire = $derived(
-    selected?.kind === "wire"
-      ? new Set([selected.no])
-      : selected?.kind === "piece"
-        ? new Set(layout.pieces.find((p) => p.ref === selected.ref)?.ports.map((p) => p.wire).filter(Boolean) as string[])
-        : new Set<string>()
-  );
+  const selWire = $derived.by(() => {
+    const s = selected;
+    if (s?.kind === "wire") return new Set([s.no]);
+    if (s?.kind === "piece") return new Set(layout.pieces.find((p) => p.ref === s.ref)?.ports.map((p) => p.wire).filter(Boolean) as string[]);
+    return new Set<string>();
+  });
   const railY1 = $derived(f.top - 24);
   const railY2 = $derived(f.top + (f.lines.length - 1) * f.rowH + 12);
   const classDesc = (no: string) => {

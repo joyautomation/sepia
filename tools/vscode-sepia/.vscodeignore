@@ -5,3 +5,8 @@ node_modules/**
 tsconfig.json
 vite.config.mts
 svelte.config.mjs
+src/e2e/**
+out/e2e/**
+.vscode/**
+scripts/**
+media/dist/harness-*

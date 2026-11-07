@@ -2,7 +2,7 @@
 // posts collect on window.__POSTED__ and the project comes from
 // window.__SEPIA__.
 
-type Api = { postMessage(msg: unknown): void };
+type Api = { postMessage(msg: unknown): void; getState?(): unknown; setState?(s: unknown): void };
 
 declare global {
   interface Window {
