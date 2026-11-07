@@ -300,9 +300,12 @@ in 31.
     and 50.8 mm clear on both sides. The enclosure side is 305 mm deep,
     and the door opening's return and the back bend take about 30 mm of
     that (32), leaving 275 mm flat: the side-fit check warns. Hammond's
-    drawing would settle it (as `side_flat_mm` on the enclosure part);
-    otherwise it goes on the door, below the operators, where 929 mm is
-    clear.
+    drawing would settle it (as `side_flat_mm` on the enclosure part).
+    If it doesn't fit, the choices are a deeper enclosure (Hammond lists
+    72×36×16 in this series only in painted steel, EN4SD723616GY; in
+    stainless the next step is the 18 in deep free-standing HN4FS723618S16)
+    or a unit with a narrower face. The door is a poor fallback: the unit
+    ships at 104 lb, about 45 kg, to hang on a 72 in single door.
 31. **Estimated sizes:** Eaton HT800 operators (Eaton's sheet wasn't
     reachable: 44×57 mm legend plates, 55 mm behind the door for
     selectors and buttons, 70 mm for pilots); the Gladiator breakers
