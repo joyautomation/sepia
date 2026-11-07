@@ -20,7 +20,8 @@ function nextLetter(rev: string | undefined): string {
 }
 
 export function revisionOf(root: string): Revision {
-  const today = new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   const tags = (git(root, ["tag", "--list", "rev-*", "--sort=creatordate", "--format=%(refname:short)\t%(creatordate:short)\t%(contents:subject)"]) ?? "")
     .split("\n")
     .filter(Boolean)
@@ -30,7 +31,7 @@ export function revisionOf(root: string): Revision {
     });
   const exact = git(root, ["describe", "--tags", "--exact-match", "--match", "rev-*", "HEAD"]);
   const commit = git(root, ["rev-parse", "--short", "HEAD"]);
-  const dirty = !!git(root, ["status", "--porcelain", "--", "."]);
+  const dirty = !!git(root, ["status", "--porcelain", "--untracked-files=no", "--", "."]);
   if (exact && !dirty) {
     const rev = exact.replace(/^rev-/, "");
     return { rev, issued: true, date: tags.find((t) => t.rev === rev)?.date ?? today, commit, history: tags };
