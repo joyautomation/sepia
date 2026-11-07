@@ -265,21 +265,23 @@ export function layoutLadder(p: Project, sheet: SheetFile, ix: Index = buildInde
     }
   }
 
-  // One note per line: what the load at the right-hand end of it is.
+  // One note per line: what the I/O point on it means, else what the load
+  // at the right-hand end of it is.
   const notes: { line: number; text: string }[] = [];
   const byLine = new Map<number, PlacedPiece>();
+  const ioLine = new Map<number, string>();
   for (const pc of pieces) {
-    if (!pc.info || !NOTE_SYMBOLS.has(pc.info.def.symbol) || pc.info.device.field) continue;
+    if (!pc.info) continue;
+    const io = pc.info.def.symbol.startsWith("plc/") ? pc.info.device.io?.[pc.info.def.terminals[0]] : undefined;
+    if (io && !ioLine.has(pc.line)) ioLine.set(pc.line, io);
+    if (!NOTE_SYMBOLS.has(pc.info.def.symbol) || pc.info.device.field) continue;
     const prev = byLine.get(pc.line);
     if (!prev || pc.col > prev.col) byLine.set(pc.line, pc);
   }
   let prev = "";
   for (const line of f.lines) {
-    const pc = byLine.get(line);
-    const d = pc?.info!.device;
-    const io = pc?.info!.def.symbol.startsWith("plc/") ? d?.io?.[pc.info!.def.terminals[0]] : undefined;
     const own = sheet.sheet.notes?.[String(line)];
-    const text = own ?? io ?? d?.desc ?? "";
+    const text = own ?? ioLine.get(line) ?? byLine.get(line)?.info!.device.desc ?? "";
     // The same device on the next line says nothing new.
     if (text && (own || text !== prev)) notes.push({ line, text });
     prev = text;

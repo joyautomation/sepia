@@ -159,8 +159,8 @@ not a person (design.md §5).
    the service disconnect. Q1 is the panel main, and its 70 A fuses sit
    above both the 45 A drive fuses and the 40 A bypass fuses.
 9. **SPD on the load side of Q1**, so Q1's fuses protect it.
-10. **A/C on its own breaker, CB5,** with a 12 A time-delay fuse per its
-    listing.
+10. **A/C on its own 12 A time-delay fuse, FU13,** because its listing
+    asks for a fuse, not a breaker. (Changed 11-07: this was CB5.)
 11. **Enclosure: keep the 60×36×12 in Hammond and drop the swing-out dead
     front (ESP6036).** The operators go on the main door. Depth check:
     305 mm − ≈15 mm standoff − 190 mm drive = 100 mm, which clears the
@@ -176,3 +176,45 @@ not a person (design.md §5).
     the example. The beacon gets any listed Type 4X hub.
 15. **Wire numbering** (James 11-06): line numbers inside the panel,
     from-to at the field terminals.
+
+## Assumptions added drawing the full panel (11-07)
+
+16. **CPT fuses, for 3 kVA at 480:120 V with primary and secondary
+    protection (NEC 450.3(B)).** Primary current is 3000 ÷ 480 = 6.25 A,
+    and up to 250 % is allowed, so 15.6 A. The pick is **10 A Class CC
+    time-delay** (160 %), which rides through magnetizing inrush. Secondary
+    current is 3000 ÷ 120 = 25 A, and 125 % is 31.25 A. Class CC stops at
+    30 A, so the pick is **30 A**, under the limit.
+17. **Each pump's control circuit has its own breaker**, CB6 and CB7 (6 A),
+    so a fault in one pump's control doesn't drop the other. Their outputs,
+    wires 211 and 213, are the left rails of sheets 3 and 4. The flow meter
+    has CB8.
+18. **The drive's run input follows its output contactor.** The drive
+    output contactor's aux N.O. (13-14) feeds both the controller's input
+    and the drive's DI1, from the panel's 24 VDC. The drive's inputs are set
+    to source mode, with the common tied to 0 V. In Auto the controller sets
+    the speed over Modbus. In Hand, a running controller still sets it, and
+    with the controller dead the drive holds its last speed (its
+    communication-loss action, a drive parameter for PNL-F07).
+19. **Pump protection relays report, they don't stop the pump.** The seal
+    and thermal contacts go to inputs, and the controller trips the pump.
+    In Hand with the controller dead, nothing stops a hot motor except the
+    bypass overload. Wiring the thermal contact into the run circuit is a
+    good lesson change and an easy edit.
+20. **Field wiring lands on three strips:** TB1 for 120 VAC (the flow
+    meter's power), TB2 for 24 VDC (the pump sensors and the flow signal),
+    and TBIS for the intrinsically safe circuits only (the floats and
+    LIT-101), in light blue per NEC 504.80. Pump sensor leads aren't on
+    TBIS, because they follow the pump's own FM listing (assumption 12).
+21. **Pilots and the beacon are controller outputs.** With the controller
+    dead they're dark. A hardwired "running" pilot from an aux contact is
+    the usual alternative.
+22. **Power wire numbering:** a power conductor takes its branch number and
+    phase or terminal (103L1 into the drive, 103U out of it, 103T1 to the
+    motor). The incoming conductors keep their phase names (L1, L2, L3, N).
+23. **Fused 24 VDC terminals (FTB1–7)** protect each load on its own:
+    controller 4 A, remote I/O, switch and router 2 A each, IS barriers and
+    pump relays 1 A each, I/O field power 4 A. That totals 16 A of fusing on
+    a 10 A supply, which is normal because they don't all draw their fuse
+    rating. PNL-F12 adds up the real load.
+
