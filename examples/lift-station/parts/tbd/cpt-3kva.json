@@ -1,7 +1,0 @@
-{
-  "desc": "Control power transformer, 3 kVA, 480 V : 120 V (parts.md assumption 4)",
-  "notes": "Catalog number to pick. H1–H4 with H2–H3 jumpered for 480 V.",
-  "pieces": {
-    "main": { "symbol": "power/xfmr", "terminals": ["H1", "X1", "H4", "X2"] }
-  }
-}

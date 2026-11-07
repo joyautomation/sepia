@@ -1,0 +1,8 @@
+{
+  "desc": "CPT secondary fuse: EHCC1DU with 25 A Class CC",
+  "base": "edison/ehcc1du",
+  "bom": [
+    { "part": "edison/ehcc1du" },
+    { "part": "edison/hctr25" }
+  ]
+}

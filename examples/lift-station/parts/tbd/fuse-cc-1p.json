@@ -1,6 +1,0 @@
-{
-  "desc": "1-pole Class CC fuse holder with CPT secondary fuse",
-  "pieces": {
-    "fuse": { "symbol": "power/fuse", "terminals": ["1", "2"] }
-  }
-}

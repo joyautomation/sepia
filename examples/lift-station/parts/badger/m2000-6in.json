@@ -1,0 +1,11 @@
+{
+  "manufacturer": "Badger Meter",
+  "catalog": "ModMAG M2000, 6 in (model string to confirm)",
+  "desc": "Magnetic flow meter, 6 in, hard rubber liner, 100-240 VAC, active 4-20 mA out",
+  "source": "https://core.instrumart.com/assets/M2000DatasheetMay2024.pdf",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "pwr": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "FLOW METER" },
+    "out": { "symbol": "box/out", "terminals": ["I+"] }
+  }
+}

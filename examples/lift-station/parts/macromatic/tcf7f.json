@@ -1,16 +1,14 @@
 {
   "manufacturer": "Macromatic",
   "catalog": "TCF7F",
-  "desc": "Pump protection relay: seal leak and thermal, 24 VAC/DC, 2 × SPDT",
-  "source": "https://macromatic.com/product/tcf7f/",
-  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "desc": "Pump protection relay: seal leak and thermal on one sensor loop, 24 VAC/DC, 2 × SPDT",
+  "source": "https://macromatic.com/wp-content/uploads/901-0000-327.pdf",
+  "notes": "Instruction sheet 901-0000-327, diagram 230. The seal probe and the motor's N.C. thermal switch are in series on pins 5 and 7. Socket (IDEC SR6P-M11G) included.",
   "pieces": {
     "pwr": { "symbol": "nema/box", "terminals": ["2", "10"], "text": "PUMP PROT" },
-    "sa": { "symbol": "box/out", "terminals": ["SEAL"] },
-    "sb": { "symbol": "box/in", "terminals": ["SCOM"] },
-    "ta": { "symbol": "box/out", "terminals": ["TEMP"] },
-    "tb": { "symbol": "box/in", "terminals": ["TCOM"] },
-    "seal": { "symbol": "nema/contact-no", "terminals": ["SK1", "SK2"] },
-    "temp": { "symbol": "nema/contact-no", "terminals": ["TK1", "TK2"] }
+    "sa": { "symbol": "box/out", "terminals": ["5"] },
+    "sb": { "symbol": "box/in", "terminals": ["7"] },
+    "seal": { "symbol": "nema/contact-no", "terminals": ["11", "9"] },
+    "temp": { "symbol": "nema/contact-no", "terminals": ["1", "4"] }
   }
 }

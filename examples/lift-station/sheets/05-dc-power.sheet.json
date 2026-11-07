@@ -3,7 +3,7 @@
   "kind": "ladder",
   "lines": [500, 515],
   "rails": ["+24", "0V"],
-  "notes": { "500": "24 VDC supply (120 VAC side /207)", "503": "UPS battery", "513": "Remote I/O field power" },
+  "notes": { "500": "24 VDC supply (120 VAC side /207)", "503": "UPS battery", "513": "Remote I/O field power (inputs)", "514": "Digital output supply" },
   "place": [
     { "piece": "PS1.dc", "line": 500, "col": 2 },
     { "piece": "UPS1.in", "line": 501, "col": 2 },
@@ -25,6 +25,8 @@
     { "piece": "PPR101.pwr", "line": 511, "col": 6 },
     { "piece": "PPR201.pwr", "line": 512, "col": 6 },
     { "piece": "FTB7.fuse", "line": 513, "col": 1 },
-    { "piece": "RIO1.field", "line": 513, "col": 6 }
+    { "piece": "RIO1.field", "line": 513, "col": 6 },
+    { "piece": "FTB8.fuse", "line": 514, "col": 1 },
+    { "piece": "RIO1-3.ext", "line": 514, "col": 6 }
   ]
 }

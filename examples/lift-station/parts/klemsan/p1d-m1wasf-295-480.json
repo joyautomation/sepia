@@ -3,10 +3,10 @@
   "catalog": "P1D-M1WASF-295-480",
   "desc": "Phase monitor relay, 150–500 VAC 3φ: loss, reversal, unbalance, over/under voltage; SPDT 10 A",
   "source": "https://cdn.automationdirect.com/static/specs/cutsheet/P1D-M1WASF-295-480_cutsheet.pdf",
-  "notes": "SCCR not stated by the maker. Output terminal numbers by convention (11 common, 14 N.O.); check the cut sheet.",
+  "notes": "SCCR not stated by the maker. Powered from L2-L3. Output 15 common, 16 N.C., 18 N.O. (family wiring diagram, AD catalog page tREL-79).",
   "pieces": {
     "sense": { "symbol": "power/box", "terminals": ["L1", "L2", "L3"], "text": "PHASE MON" },
-    "ok": { "symbol": "nema/contact-no", "terminals": ["11", "14"] }
+    "ok": { "symbol": "nema/contact-no", "terminals": ["15", "18"] }
   },
   "mount": { "din": "35mm", "size_mm": [18, 90, 64] }
 }

@@ -3,10 +3,10 @@
   "catalog": "GS4-4015",
   "desc": "DURApulse GS4 AC drive, 15 hp 460 V, variable torque 24 A out",
   "source": "https://www.automationdirect.com/pn/GS4-4015",
-  "notes": "Power terminals R/L1 S/L2 T/L3, U/T1 V/T2 W/T3 per the GS4 manual. Control terminal names to check against the manual.",
+  "notes": "Power terminals R/L1 S/L2 T/L3, U/T1 V/T2 W/T3 per the GS4 manual. FWD's common is DIC: tied to the panel's 0 V for a sourced input, with the drive's own +24V and DCM unused.",
   "pieces": {
     "power": { "symbol": "power/vfd", "terminals": ["R/L1", "U/T1", "S/L2", "V/T2", "T/L3", "W/T3"] },
-    "fwd": { "symbol": "plc/di", "terminals": ["DI1"] }
+    "fwd": { "symbol": "plc/di", "terminals": ["FWD"] }
   },
   "ratings": {
     "sccr": [

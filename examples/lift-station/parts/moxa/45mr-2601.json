@@ -1,9 +1,10 @@
 {
   "manufacturer": "Moxa",
   "catalog": "45MR-2601",
-  "desc": "16 DO 24 VDC sourcing, ioThinx 4500",
+  "desc": "16 DO 24 VDC sourcing, ioThinx 4500, external field supply on EXT+/EXT-",
   "source": "https://www.moxa.com/en/products/industrial-edge-connectivity/controllers-and-ios/advanced-modular-remote-i-o/iothinx-4500-series/45mr-2601",
   "pieces": {
-    "do{n}": { "symbol": "plc/do", "terminals": ["DO{n}"], "count": 16, "from": 0 }
+    "do{n}": { "symbol": "plc/do", "terminals": ["DO{n}"], "count": 16, "from": 0 },
+    "ext": { "symbol": "nema/box", "terminals": ["EXT+", "EXT-"], "text": "DO SUPPLY" }
   }
 }

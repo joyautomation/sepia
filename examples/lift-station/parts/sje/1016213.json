@@ -1,0 +1,10 @@
+{
+  "manufacturer": "SJE-Rhombus",
+  "catalog": "MilliAmpMaster 1016213 (20MAWENO)",
+  "desc": "Float switch, wide angle, N.O., gold contacts, 20 ft cable; suits IS barrier circuits, UL Listed for sewage",
+  "source": "https://www.solar-electric.com/lib/wind-sun/SJE-Rhombus_milliampmaster_specs.pdf",
+  "notes": "Two-conductor cable, colours not stated. A simple apparatus behind the IS relay, not IS-certified itself.",
+  "pieces": {
+    "sw": { "symbol": "nema/float-no", "terminals": ["1", "2"] }
+  }
+}

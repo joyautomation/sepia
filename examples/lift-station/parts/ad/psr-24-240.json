@@ -1,0 +1,12 @@
+{
+  "manufacturer": "AutomationDirect",
+  "catalog": "PSR-24-240",
+  "desc": "Rhino power supply, 24 VDC 10 A (240 W), 90-264 VAC in",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/PSR-24-240_cutsheet.pdf",
+  "notes": "Input L, N, PE; output V+ and V- (two terminals each). DC OK contact not drawn.",
+  "pieces": {
+    "ac": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "24 VDC PS" },
+    "dc": { "symbol": "nema/box", "terminals": ["V+", "V-"], "text": "24 VDC OUT" }
+  },
+  "mount": { "din": "35mm", "size_mm": [40, 124, 117] }
+}

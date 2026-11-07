@@ -1,7 +1,0 @@
-{
-  "desc": "Submersible level transducer, two-wire 4–20 mA, IS for Class I Div 1 (make to pick)",
-  "notes": "Terminal names are functional until checked against the maker's drawing.",
-  "pieces": {
-    "loop": { "symbol": "nema/box", "terminals": ["+", "-"], "text": "LEVEL XMTR" }
-  }
-}

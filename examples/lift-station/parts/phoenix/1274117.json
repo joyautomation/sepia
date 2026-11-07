@@ -1,5 +1,7 @@
 {
-  "desc": "24 V lead battery module for the QUINT4-UPS (catalog number to confirm)",
+  "manufacturer": "Phoenix Contact",
+  "catalog": "UPS-BAT/PB/24DC/4AH (1274117)",
+  "desc": "Battery module, 24 V 4 Ah VRLA-AGM, IQ auto-detection",
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "bat": { "symbol": "nema/box", "terminals": ["-", "+"], "text": "BATTERY" }

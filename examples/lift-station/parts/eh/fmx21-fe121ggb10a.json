@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Endress+Hauser",
+  "catalog": "Waterpilot FMX21-FE121GGB10A",
+  "desc": "Submersible level transducer, 0-0.6 bar (20 ftWC), 2-wire 4-20 mA, FM IS Class I Div 1, 10 m cable",
+  "source": "https://cdn.automationdirect.com/static/specs/fmx21techspecs.pdf",
+  "notes": "Cable: red +, black -, yellow-green shield. Entity: Vmax 30 V, Imax 133 mA, Pmax 1 W. Shortening the cable voids the FM approval.",
+  "pieces": {
+    "loop": { "symbol": "nema/box", "terminals": ["+", "-"], "text": "LEVEL XMTR" }
+  }
+}

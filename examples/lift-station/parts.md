@@ -147,7 +147,10 @@ not a person (design.md §5).
    | **Total** | **≈1800** |
 
    2 kVA would carry that at 90 %. 3 kVA leaves room for the A/C's 32 A
-   inrush. The catalog number will be picked when the 3D part is made.
+   inrush. **Changed 11-07: 2.5 kVA, BLOCK CT-250-048-12-0.** AutomationDirect
+   has no 3 kVA 480:120 V unit (the BLOCK CT series stops at 2.5 kVA, and
+   Hammond's SP3000MQMJ was retired). 1800 VA on 2.5 kVA is 72 % loaded,
+   with 700 VA of headroom for the A/C's start.
 5. **Drive:** GS4-4015 holds. The pump is 15 hp at 460 V, 21 A per NEC
    Table 430.250, under the 24 A VT rating.
 6. **Overloads:** in the bypass leg only. In VFD mode the drive protects the
@@ -159,8 +162,12 @@ not a person (design.md §5).
    the service disconnect. Q1 is the panel main, and its 70 A fuses sit
    above both the 45 A drive fuses and the 40 A bypass fuses.
 9. **SPD on the load side of Q1**, so Q1's fuses protect it.
-10. **A/C on its own 12 A time-delay fuse, FU13,** because its listing
-    asks for a fuse, not a breaker. (Changed 11-07: this was CB5.)
+10. **A/C on its own time-delay fuse, FU13,** because its listing asks for
+    a 12 A fuse, not a breaker. There's no 12 A Class CC at
+    AutomationDirect, so it's **10 A** (HCTR10), the next size under the
+    listing's maximum. That's 163 % of the 6.14 A running current, and a
+    time-delay fuse rides through the 32 A start. (Changed 11-07: this was
+    CB5.)
 11. **Enclosure: keep the 60×36×12 in Hammond and drop the swing-out dead
     front (ESP6036).** The operators go on the main door. Depth check:
     305 mm − ≈15 mm standoff − 190 mm drive = 100 mm, which clears the
@@ -179,12 +186,12 @@ not a person (design.md §5).
 
 ## Assumptions added drawing the full panel (11-07)
 
-16. **CPT fuses, for 3 kVA at 480:120 V with primary and secondary
-    protection (NEC 450.3(B)).** Primary current is 3000 ÷ 480 = 6.25 A,
-    and up to 250 % is allowed, so 15.6 A. The pick is **10 A Class CC
-    time-delay** (160 %), which rides through magnetizing inrush. Secondary
-    current is 3000 ÷ 120 = 25 A, and 125 % is 31.25 A. Class CC stops at
-    30 A, so the pick is **30 A**, under the limit.
+16. **CPT fuses, for 2.5 kVA at 480:120 V with primary and secondary
+    protection (NEC 450.3(B)).** Primary current is 2500 ÷ 480 = 5.21 A,
+    and up to 250 % is allowed, so 13.0 A. The pick is **10 A Class CC
+    time-delay** (HCTR10 ×2 in an EHCC2DU), which rides through magnetizing
+    inrush. Secondary current is 2500 ÷ 120 = 20.8 A, and 125 % is 26 A.
+    The pick is **25 A** (HCTR25 in an EHCC1DU).
 17. **Each pump's control circuit has its own breaker**, CB6 and CB7 (6 A),
     so a fault in one pump's control doesn't drop the other. Their outputs,
     wires 211 and 213, are the left rails of sheets 3 and 4. The flow meter
@@ -196,8 +203,10 @@ not a person (design.md §5).
     the speed over Modbus. In Hand, a running controller still sets it, and
     with the controller dead the drive holds its last speed (its
     communication-loss action, a drive parameter for PNL-F07).
-19. **Pump protection relays report, they don't stop the pump.** The seal
-    and thermal contacts go to inputs, and the controller trips the pump.
+19. **Pump protection relays report, they don't stop the pump.** The TCF7F
+    reads one loop per pump (pins 5 and 7): the seal probe in series with
+    the motor's N.C. thermal switch. Its two alarm contacts (leak 11–9,
+    temperature 1–4) go to inputs, and the controller trips the pump.
     In Hand with the controller dead, nothing stops a hot motor except the
     bypass overload. Wiring the thermal contact into the run circuit is a
     good lesson change and an easy edit.
@@ -217,4 +226,19 @@ not a person (design.md §5).
     pump relays 1 A each, I/O field power 4 A. That totals 16 A of fusing on
     a 10 A supply, which is normal because they don't all draw their fuse
     rating. PNL-F12 adds up the real load.
+24. **The level loop's IS entity check passes.** KFD2-STC5-Ex1 output to
+    the field: Uo 26.2 V, Io 93 mA, Po 634 mW. The FMX21's entity limits:
+    Vmax 30 V, Imax 133 mA, Pmax 1 W. Every source value is under its
+    limit. The cable's capacitance and inductance haven't been checked
+    against Co and Lo yet, which is the PNL-A01 exercise and a future
+    `sepia check`.
+25. **Parts picked 11-07** (verified by research unless marked): BLOCK
+    CT-250-048-12-0, Edison EHCC2DU/EHCC1DU with HCTR10/HCTR25, Rhino
+    PSR-24-240, Phoenix UPS-BAT/PB/24DC/4AH (1274117), SJE-Rhombus
+    MilliAmpMaster 1016213 floats (partly: SJE's sheet hosted by a
+    distributor), E+H Waterpilot FMX21-FE121GGB10A, and a Badger ModMAG
+    M2000 6 in (partly: the model string needs confirming with Badger).
+    Still unknown from the makers: Eaton HT800 contact numbering by
+    position, the Gladiator breaker and Edison holder markings, and the
+    M2000's terminals. Those parts say so in their `notes`.
 

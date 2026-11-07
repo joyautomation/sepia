@@ -2,10 +2,10 @@
   "manufacturer": "Phoenix Contact",
   "catalog": "2907066",
   "desc": "QUINT4-UPS/24DC/24DC/10, DC UPS, 10 A, communicating",
-  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "notes": "1.x input, 2.x output, 4.x battery: .1 is +, .2 is -. Signal block 3.x not drawn.",
   "pieces": {
-    "in": { "symbol": "nema/box", "terminals": ["+IN", "-IN"], "text": "UPS IN" },
-    "out": { "symbol": "nema/box", "terminals": ["+OUT", "-OUT"], "text": "UPS OUT" },
-    "bat": { "symbol": "nema/box", "terminals": ["-BAT", "+BAT"], "text": "UPS BATTERY" }
+    "in": { "symbol": "nema/box", "terminals": ["1.1", "1.2"], "text": "UPS IN" },
+    "out": { "symbol": "nema/box", "terminals": ["2.1", "2.2"], "text": "UPS OUT" },
+    "bat": { "symbol": "nema/box", "terminals": ["4.2", "4.1"], "text": "UPS BATTERY" }
   }
 }

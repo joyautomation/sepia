@@ -1,8 +1,0 @@
-{
-  "desc": "TCF7F relay on its 70170-D socket",
-  "base": "macromatic/tcf7f",
-  "bom": [
-    { "part": "macromatic/tcf7f" },
-    { "part": "macromatic/70170-d" }
-  ]
-}

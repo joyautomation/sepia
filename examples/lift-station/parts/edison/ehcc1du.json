@@ -1,0 +1,15 @@
+{
+  "manufacturer": "Edison",
+  "catalog": "EHCC1DU",
+  "desc": "Fuse holder, Class CC, 30 A 1P, DIN rail",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/EHCC1DU_cutsheet.pdf",
+  "notes": "Terminal markings not shown by the maker; named by function.",
+  "pieces": {
+    "fuse": { "symbol": "power/fuse", "terminals": ["1", "2"] }
+  },
+  "ratings": {
+    "sccr": [
+      { "ka": 200 }
+    ]
+  }
+}

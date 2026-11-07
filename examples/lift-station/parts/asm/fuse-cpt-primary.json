@@ -1,0 +1,8 @@
+{
+  "desc": "CPT primary fuses: EHCC2DU with 10 A Class CC",
+  "base": "edison/ehcc2du",
+  "bom": [
+    { "part": "edison/ehcc2du" },
+    { "part": "edison/hctr10", "qty": 2 }
+  ]
+}

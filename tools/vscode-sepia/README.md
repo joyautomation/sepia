@@ -125,10 +125,9 @@ SCCR takes the lowest rating of any device, assemblies included.
   network sheet. Parts carry `bom` lists so the BOM can be generated next.
 - Grounding conductors aren't modelled (the SPD's ground, the bonded X2 of
   the transformer, the ground bar).
-- Some parts in the example still have functional terminal names (`+IN`,
-  `SEAL`) where the maker's markings haven't been checked. Their part files
-  say so in `notes`, and parts under `parts/tbd/` still need a catalog
-  number.
+- A few parts in the example have terminal names by function where the
+  maker doesn't publish markings (Eaton HT800 blocks by position, the
+  breakers, the flow meter). Their part files say so in `notes`.
 - PLC input commons aren't modelled, so input boxes don't connect to the
   0 V rail. That's intended for now.
 - From-to numbering for field wires isn't checked yet (there are no field

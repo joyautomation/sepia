@@ -1,0 +1,12 @@
+{
+  "manufacturer": "BLOCK",
+  "catalog": "CT-250-048-12-0",
+  "desc": "Control transformer, 2.5 kVA, 240x480 V primary : 120 V, 1.9 %Z, UL Recognized, no fuse block",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/CT-250-048-12-0_cutsheet.pdf",
+  "notes": "480 V: line on H1 and H4, H2-H3 jumpered (jumpers supplied). AutomationDirect has no 3 kVA 480:120 unit (parts.md assumption 4).",
+  "pieces": {
+    "main": { "symbol": "power/xfmr", "terminals": ["H1", "X1", "H4", "X2"] }
+  },
+  "ratings": { "va": 2500, "heat_w": 118 },
+  "mount": { "backpanel": true, "size_mm": [192, 202, 190] }
+}

@@ -1,0 +1,11 @@
+{
+  "desc": "A/C fuse: EHCC1DU with 10 A Class CC time-delay (its listing allows up to 12 A)",
+  "base": "edison/ehcc1du",
+  "pieces": {
+    "fuse": { "symbol": "nema/fuse", "terminals": ["1", "2"] }
+  },
+  "bom": [
+    { "part": "edison/ehcc1du" },
+    { "part": "edison/hctr10" }
+  ]
+}

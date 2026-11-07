@@ -3,7 +3,6 @@
   "notes": "The pump isn't picked; plant.md §2. Leads by function.",
   "pieces": {
     "motor": { "symbol": "power/motor", "terminals": ["T1", "T2", "T3"] },
-    "seal": { "symbol": "nema/box", "terminals": ["S1", "S2"], "text": "SEAL PROBE" },
-    "temp": { "symbol": "nema/contact-nc", "terminals": ["TH1", "TH2"] }
+    "sensors": { "symbol": "nema/box", "terminals": ["S1", "S2"], "text": "SEAL + THERMAL" }
   }
 }
