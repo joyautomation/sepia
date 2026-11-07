@@ -4,7 +4,7 @@
   // piece sits.
   import type { Project, SheetFile } from "../src/core/types.ts";
   import { cellAt, cellCentre, SHEET, type LadderLayout } from "../src/core/ladder.ts";
-  import { INK, Pen, textLeft, type Meta, type Prim } from "../src/core/draw.ts";
+  import { INK, Pen, svgPath, textLeft, type Meta, type Prim } from "../src/core/draw.ts";
   import { drawSheet, drawSymbol } from "../src/core/sheetDraw.ts";
 
   type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
@@ -24,7 +24,7 @@
     sheet: SheetFile;
     selected: Sel;
     /** A piece being dragged (from the sheet or the unplaced list). */
-    drag: { ref: string; symbol: string; line: number; col: number; over: boolean } | null;
+    drag: { ref: string; symbol: string; n: number; text?: string; line: number; col: number; over: boolean } | null;
     onpick: (ref: string) => void;
     onmove: (pt: { line: number; col: number } | null) => void;
     ondrop: () => void;
@@ -109,7 +109,7 @@
   const ghost = $derived.by(() => {
     if (!drag) return [];
     const pen = new Pen();
-    drawSymbol(pen, drag.symbol);
+    drawSymbol(pen, drag.symbol, drag.n, { text: drag.text });
     return pen.items;
   });
 </script>
@@ -124,7 +124,7 @@
     {:else if p.t === "circle"}
       <circle class={cls} cx={p.cx} cy={p.cy} r={p.r} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} />
     {:else if p.t === "path"}
-      <path class={cls} d={p.d.map((s) => (s[0] === "Z" ? "Z" : `${s[0]}${s[1]},${s[2]}`)).join(" ")} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} />
+      <path class={cls} d={svgPath(p.d)} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} />
     {:else}
       <text class={cls} x={textLeft(p)} y={p.y} font-size={p.size} font-weight={p.bold ? "bold" : "normal"} fill={p.color ?? INK}>{p.text}</text>
     {/if}

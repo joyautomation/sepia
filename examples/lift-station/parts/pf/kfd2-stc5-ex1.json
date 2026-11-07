@@ -1,0 +1,14 @@
+{
+  "manufacturer": "Pepperl+Fuchs",
+  "catalog": "KFD2-STC5-Ex1 (239206)",
+  "desc": "Transmitter power supply / isolator, 1 channel, IS 4–20 mA input, 4–20 mA out",
+  "source": "https://files.pepperl-fuchs.com/webcat/navi/productInfo/pds/239206_eng.pdf",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "pwr": { "symbol": "nema/box", "terminals": ["14", "15"], "text": "IS ISOLATOR" },
+    "fa": { "symbol": "box/out", "terminals": ["1"] },
+    "fb": { "symbol": "box/in", "terminals": ["3"] },
+    "out": { "symbol": "box/out", "terminals": ["7"] }
+  },
+  "mount": { "din": "35mm", "size_mm": [20, 124, 115] }
+}

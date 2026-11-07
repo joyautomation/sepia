@@ -1,0 +1,11 @@
+{
+  "desc": "Alarm reset pushbutton: HT8AAH operator with a gold N.O. block",
+  "base": "eaton/ht8aah",
+  "pieces": {
+    "pb": { "symbol": "nema/pb-no", "terminals": ["3", "4"] }
+  },
+  "bom": [
+    { "part": "eaton/ht8aah" },
+    { "part": "eaton/ht8e" }
+  ]
+}

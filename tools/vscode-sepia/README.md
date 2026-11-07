@@ -1,10 +1,16 @@
 # sepia for VS Code
 
-The first slice of sepia: a `*.sheet.json` opens as a ladder drawing on an
-ANSI B sheet, drawn from the project's files. `panel.json` says what's wired
-to what. The sheet only says which line and column each piece sits on.
-Wires, wire numbers, cross-references, line descriptions and the title
-block are all computed from that data.
+sepia opens a `*.sheet.json` as a drawing on an ANSI B sheet, drawn from
+the project's files. `panel.json` says what's wired to what. The sheet only
+says which line and column each piece sits on. Wires, wire numbers,
+cross-references, line descriptions and the title block are all computed
+from that data.
+
+Two sheet kinds are drawn: **ladder** (rungs between two rails) and
+**power** (three-phase branches hanging off a bus). The example,
+`examples/lift-station`, is the whole lift-station panel on nine sheets:
+power, 120 VAC and 24 VDC distribution, both pumps' control, inputs,
+outputs and analog.
 
 ## Try it
 
@@ -28,28 +34,32 @@ Then either:
   `code --install-extension sepia-0.0.1.vsix`, then open
   `examples/lift-station` as a folder.
 
-Open `sheets/01-pump-1-control.sheet.json`. It opens as a drawing; use
-"Reopen Editor With… → Text Editor" to see the JSON.
+Open `sheets/01-power.sheet.json` or `sheets/03-pump-1-control.sheet.json`.
+It opens as a drawing; use "Reopen Editor With… → Text Editor" to see the
+JSON. The left panel lists all nine sheets.
 
 ### Things to try
 
-1. **Drag a part** to another line or column. The wires re-route, and
+1. **Power sheet:** drag a fuse or contactor to another branch or
+   position; the bus and the motor-lead junctions re-route. Click wire
+   `100L1` to see the bus light up.
+2. **Drag a part** on a ladder sheet to another line or column. The wires re-route, and
    exactly one line of the sheet's JSON changes. Ctrl+Z undoes it. A drag
    never touches `panel.json`.
-2. **Click a wire** (for example 302). It highlights everywhere it goes and
+3. **Click a wire** (for example 302). It highlights everywhere it goes and
    lists its terminals in pull order. "Wire in panel.json" jumps to its
    line.
-3. **Edit `panel.json` beside the drawing**, the way an agent would. Move a
+4. **Edit `panel.json` beside the drawing**, the way an agent would. Move a
    terminal to another wire, or rename wire `302A` to `310`. The drawing
    and the checks update as you type, before you save.
-4. **Drag a spare contact** (CR101.no2, OL101.no) from the left panel onto
+5. **Drag a spare contact** (CR101.no2, OL101.no) from the left panel onto
    a line. Delete removes the selected part from the sheet.
-5. **Problems panel:** the SCCR error is real. 150 kVA at 2 %Z gives
+6. **Problems panel:** the SCCR error is real. 150 kVA at 2 %Z gives
    9.0 kA available, and the GH15ET contactors are only rated 5 kA. That's
    the PNL-P02 lesson.
-6. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
+7. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
    writes every sheet to one PDF. It's the same drawing as on screen.
-7. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
+8. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
    mouse wheel zooms, and dragging the background pans.
 
 ### Revisions from git tags
@@ -96,10 +106,13 @@ browser. It's a static snapshot: dragging works, but nothing is saved.
 ## What's checked
 
 Parse errors; duplicate tags and wire numbers; unknown parts, terminals and
-pieces; a terminal on two wires; open wires; two parts in one cell; lines
-and columns out of range; a part drawn twice; wire numbers that don't follow
-line numbering (302, 302A, 302B); and panel SCCR against the available fault
+pieces; an assembly whose base or BOM part is missing; a terminal on two
+wires; open wires; two parts in one cell; lines and columns out of range; a
+symbol on the wrong kind of sheet (a 3-pole contactor on a ladder); a part
+drawn twice; wire numbers that don't follow line numbering (302, 302A,
+302B; 103L1 on a power branch); and panel SCCR against the available fault
 current computed from `sepia.json`'s `service` (transformer kVA and %Z).
+SCCR takes the lowest rating of any device, assemblies included.
 
 ## Not yet
 
@@ -108,8 +121,14 @@ current computed from `sepia.json`'s `service` (transformer kVA and %Z).
   it could ship quickly. It ports cleanly.
 - Symbols are built in (`src/core/sheetDraw.ts`). Project symbols as JSON
   primitives come next.
-- No cover sheet, BOM or wire list pages yet, and no panel layout or 3D, and no one-line, PLC I/O or
-  network sheet types. Only ladder sheets.
+- No cover sheet, BOM or wire list pages yet, no panel layout or 3D, and no
+  network sheet. Parts carry `bom` lists so the BOM can be generated next.
+- Grounding conductors aren't modelled (the SPD's ground, the bonded X2 of
+  the transformer, the ground bar).
+- Some parts in the example still have functional terminal names (`+IN`,
+  `SEAL`) where the maker's markings haven't been checked. Their part files
+  say so in `notes`, and parts under `parts/tbd/` still need a catalog
+  number.
 - PLC input commons aren't modelled, so input boxes don't connect to the
   0 V rail. That's intended for now.
 - From-to numbering for field wires isn't checked yet (there are no field

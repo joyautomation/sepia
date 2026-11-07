@@ -1,0 +1,14 @@
+{
+  "manufacturer": "Bussmann",
+  "catalog": "CH60J3",
+  "desc": "Fuse holder, Class J, 60 A 3P, DIN rail",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/CH60J3_cutsheet.pdf",
+  "pieces": {
+    "fuse": { "symbol": "power/fuse", "terminals": ["L1", "T1", "L2", "T2", "L3", "T3"] }
+  },
+  "ratings": {
+    "sccr": [
+      { "ka": 200 }
+    ]
+  }
+}

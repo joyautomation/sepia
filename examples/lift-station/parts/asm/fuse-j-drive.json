@@ -1,0 +1,8 @@
+{
+  "desc": "Drive input fuses: CH60J3 holder with 45 A high-speed Class J",
+  "base": "bussmann/ch60j3",
+  "bom": [
+    { "part": "bussmann/ch60j3" },
+    { "part": "edison/jhl45-1", "qty": 3 }
+  ]
+}

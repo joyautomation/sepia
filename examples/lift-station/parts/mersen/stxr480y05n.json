@@ -1,0 +1,15 @@
+{
+  "manufacturer": "Mersen",
+  "catalog": "STXR480Y05N",
+  "desc": "Surge protective device, UL 1449 Type 1, 480Y/277 V wye 4W+G, In 20 kA",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/STXR480Y05N_cutsheet.pdf",
+  "pieces": {
+    "main": { "symbol": "power/spd", "terminals": ["L1", "L2", "L3", "N"] }
+  },
+  "ratings": {
+    "sccr": [
+      { "ka": 200 }
+    ]
+  },
+  "mount": { "backpanel": true, "size_mm": [85, 85, 79] }
+}

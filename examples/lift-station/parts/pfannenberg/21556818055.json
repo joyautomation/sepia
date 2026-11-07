@@ -1,0 +1,11 @@
+{
+  "manufacturer": "Pfannenberg",
+  "catalog": "21556818055",
+  "desc": "PYRA beacon and sounder, 12–48 VDC, separate light and sounder inputs, 101 dB, Type 4X",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/pushbuttons_-z-_switches_-z-_indicators/signaling_devices/audible-visual_signaling_devices/21556818055",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "light": { "symbol": "nema/box", "terminals": ["L+", "L-"], "text": "BEACON" },
+    "horn": { "symbol": "nema/box", "terminals": ["H+", "H-"], "text": "HORN" }
+  }
+}

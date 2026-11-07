@@ -8,11 +8,14 @@
   "sheet": "ansi-b",
   "template": "joy-standard",
   "numbering": { "default": "line", "field": "from-to" },
-  "service": { "volts": 480, "phases": 3, "transformerKva": 150, "transformerZPct": 2.0, "note": "assumed; parts.md assumption 1" },
+  "service": { "volts": 480, "phases": 3, "transformerKva": 150, "transformerZPct": 2, "note": "assumed; parts.md assumption 1" },
   "wireClasses": {
+    "pwr480": { "desc": "480 VAC power", "color": "black", "awg": 8 },
+    "neu480": { "desc": "480Y/277 neutral (SPD only)", "color": "white", "awg": 8 },
     "ctl120": { "desc": "120 VAC control", "color": "red", "awg": 16 },
     "neu120": { "desc": "120 VAC neutral", "color": "white", "awg": 16 },
     "dc24": { "desc": "+24 VDC", "color": "blue", "awg": 18 },
-    "dc0": { "desc": "0 VDC common", "color": "white/blue", "awg": 18 }
+    "dc0": { "desc": "0 VDC common", "color": "white/blue", "awg": 18 },
+    "is24": { "desc": "Intrinsically safe", "color": "light blue", "awg": 18 }
   }
 }

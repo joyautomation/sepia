@@ -1,0 +1,19 @@
+{
+  "title": "Analog inputs",
+  "kind": "ladder",
+  "lines": [900, 915],
+  "rails": ["+24", "0V"],
+  "notes": { "900": "Level transmitter loop, IS (Class I Div 1)" },
+  "place": [
+    { "piece": "ISB1.fa", "line": 900, "col": 1 },
+    { "piece": "TBIS.t5", "line": 900, "col": 3 },
+    { "piece": "LIT-101.loop", "line": 900, "col": 5 },
+    { "piece": "TBIS.t6", "line": 900, "col": 7 },
+    { "piece": "ISB1.fb", "line": 900, "col": 10 },
+    { "piece": "ISB1.out", "line": 901, "col": 1 },
+    { "piece": "RIO1-4.ai0", "line": 901, "col": 9 },
+    { "piece": "FIT-101.out", "line": 902, "col": 1 },
+    { "piece": "TB2.t9", "line": 902, "col": 4 },
+    { "piece": "RIO1-4.ai1", "line": 902, "col": 9 }
+  ]
+}

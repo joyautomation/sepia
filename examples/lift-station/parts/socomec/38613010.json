@@ -1,0 +1,16 @@
+{
+  "manufacturer": "Socomec",
+  "catalog": "38613010",
+  "desc": "FUSERBLOC fusible disconnect, 100 A 3P 600 VAC, UL 98, Class J",
+  "source": "https://www.automationdirect.com/pn/38613010",
+  "notes": "Terminal names L1–L3 / T1–T3 by function; Socomec marks 1-3-5 / 2-4-6.",
+  "pieces": {
+    "main": { "symbol": "power/disconnect-fused", "terminals": ["L1", "T1", "L2", "T2", "L3", "T3"] }
+  },
+  "ratings": {
+    "sccr": [
+      { "ka": 200, "with": "Class J fuses" }
+    ]
+  },
+  "mount": { "backpanel": true, "size_mm": [149, 186, 122] }
+}

@@ -1,0 +1,8 @@
+{
+  "desc": "3-pole Class CC holder with 1 A time-delay fuses",
+  "base": "edison/ehcc3du",
+  "bom": [
+    { "part": "edison/ehcc3du" },
+    { "part": "edison/hctr1", "qty": 3 }
+  ]
+}

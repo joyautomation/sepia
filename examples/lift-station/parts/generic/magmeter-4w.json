@@ -1,0 +1,8 @@
+{
+  "desc": "Magnetic flow meter, four-wire, 120 VAC, 4–20 mA out (make to pick)",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "pwr": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "FLOW METER" },
+    "out": { "symbol": "box/out", "terminals": ["I+"] }
+  }
+}

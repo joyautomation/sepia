@@ -1,0 +1,11 @@
+{
+  "desc": "Terminal strip: 4 feed-through terminals, end cover, two end brackets",
+  "pieces": {
+    "t{n}": { "symbol": "nema/terminal", "terminals": ["{n}", "{n}"], "count": 4 }
+  },
+  "bom": [
+    { "part": "ad/dn-t12-a", "qty": 4 },
+    { "part": "ad/dn-ec1210" },
+    { "part": "ad/dn-eb35-a", "qty": 2 }
+  ]
+}

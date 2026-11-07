@@ -1,0 +1,12 @@
+{
+  "manufacturer": "AutomationDirect",
+  "catalog": "DN-T12-A",
+  "desc": "Feed-through terminal block, 2.5 mm², 600 V 20 A, grey",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/terminal_blocks/dinnector_din-rail_terminal_blocks/single-level_feed-through_terminal_blocks/dn-t12-a",
+  "ratings": {
+    "sccr": [
+      { "ka": 100 }
+    ]
+  },
+  "mount": { "din": "35mm", "width_mm": 5 }
+}

@@ -77,7 +77,11 @@ export function primToPdf(p: Prim): string {
       return paint(p.fill, p.s, ops, true);
     }
     case "path": {
-      const ops = p.d.map((s) => (s[0] === "Z" ? "h" : `${n(s[1])} ${n(s[2])} ${s[0] === "M" ? "m" : "l"}`)).join(" ");
+      const ops = p.d
+        .map((s) =>
+          s[0] === "Z" ? "h" : s[0] === "C" ? `${n(s[1])} ${n(s[2])} ${n(s[3])} ${n(s[4])} ${n(s[5])} ${n(s[6])} c` : `${n(s[1])} ${n(s[2])} ${s[0] === "M" ? "m" : "l"}`
+        )
+        .join(" ");
       return paint(p.fill, p.s, ops, p.d.some((s) => s[0] === "Z"));
     }
     case "text":

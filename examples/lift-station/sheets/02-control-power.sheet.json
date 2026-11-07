@@ -1,0 +1,26 @@
+{
+  "title": "120 VAC distribution",
+  "kind": "ladder",
+  "lines": [200, 215],
+  "rails": ["1", "2"],
+  "notes": { "211": "Pump 1 control, sheet 3", "213": "Pump 2 control, sheet 4", "215": "Flow meter FIT-101 power" },
+  "place": [
+    { "piece": "CB1.cb", "line": 201, "col": 1 },
+    { "piece": "DS1.sw", "line": 201, "col": 3 },
+    { "piece": "LT1.lamp", "line": 201, "col": 9 },
+    { "piece": "CB2.cb", "line": 203, "col": 1 },
+    { "piece": "REC1.rec", "line": 203, "col": 9 },
+    { "piece": "CB3.cb", "line": 205, "col": 1 },
+    { "piece": "HTR1.htr", "line": 205, "col": 9 },
+    { "piece": "CB4.cb", "line": 207, "col": 1 },
+    { "piece": "PS1.ac", "line": 207, "col": 9 },
+    { "piece": "FU13.fuse", "line": 209, "col": 1 },
+    { "piece": "AC1.ac", "line": 209, "col": 9 },
+    { "piece": "CB6.cb", "line": 211, "col": 1 },
+    { "piece": "CB7.cb", "line": 213, "col": 1 },
+    { "piece": "CB8.cb", "line": 215, "col": 1 },
+    { "piece": "TB1.t1", "line": 215, "col": 3 },
+    { "piece": "FIT-101.pwr", "line": 215, "col": 7 },
+    { "piece": "TB1.t2", "line": 215, "col": 9 }
+  ]
+}

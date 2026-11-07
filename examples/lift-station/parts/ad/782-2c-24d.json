@@ -9,6 +9,8 @@
     "no1": { "symbol": "nema/contact-no", "terminals": ["11", "14"] },
     "no2": { "symbol": "nema/contact-no", "terminals": ["21", "24"] }
   },
-  "ratings": { "coil": { "volts": "24VDC", "watts": 1.15 } },
+  "ratings": {
+    "coil": { "volts": "24VDC", "watts": 1.15 }
+  },
   "mount": { "din": "35mm" }
 }

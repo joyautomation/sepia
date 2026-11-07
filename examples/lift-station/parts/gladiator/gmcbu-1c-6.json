@@ -1,0 +1,15 @@
+{
+  "manufacturer": "Gladiator",
+  "catalog": "GMCBU-1C-6",
+  "desc": "Circuit breaker, 1P 6 A, C curve, UL 489, IR 10 kA at 277 V",
+  "source": "https://cdn.automationdirect.com/static/specs/cutsheet/GMCBU-1C-15_cutsheet.pdf",
+  "pieces": {
+    "cb": { "symbol": "nema/cb", "terminals": ["1", "2"] }
+  },
+  "ratings": {
+    "sccr": [
+      { "ka": 10 }
+    ]
+  },
+  "mount": { "din": "35mm", "width_mm": 18 }
+}

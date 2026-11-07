@@ -1,0 +1,9 @@
+{
+  "manufacturer": "OnLogic",
+  "catalog": "Karbon 410 (K410)",
+  "desc": "Rugged PC, Atom x6425E, 8 GB, 9–48 VDC, −40 to 70 °C (runs Nautilus)",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "pwr": { "symbol": "nema/box", "terminals": ["V+", "V-"], "text": "CONTROLLER" }
+  }
+}

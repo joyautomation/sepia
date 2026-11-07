@@ -1,0 +1,18 @@
+{
+  "title": "Pump 2 control",
+  "kind": "ladder",
+  "lines": [400, 415],
+  "rails": ["213", "2"],
+  "place": [
+    { "piece": "SS201.left", "line": 402, "col": 1 },
+    { "piece": "SS202.left", "line": 402, "col": 4 },
+    { "piece": "M201B.il", "line": 402, "col": 6 },
+    { "piece": "M201A.coil", "line": 402, "col": 10 },
+    { "piece": "SS201.right", "line": 403, "col": 1 },
+    { "piece": "CR201.no1", "line": 403, "col": 2 },
+    { "piece": "SS202.right", "line": 405, "col": 4 },
+    { "piece": "OL201.nc", "line": 405, "col": 5 },
+    { "piece": "M201A.il", "line": 405, "col": 6 },
+    { "piece": "M201B.coil", "line": 405, "col": 10 }
+  ]
+}

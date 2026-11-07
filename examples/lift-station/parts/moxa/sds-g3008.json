@@ -1,0 +1,9 @@
+{
+  "manufacturer": "Moxa",
+  "catalog": "SDS-G3008",
+  "desc": "Managed Ethernet switch, 8 GbE, DIN rail, UL",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "pwr": { "symbol": "nema/box", "terminals": ["V1+", "V1-"], "text": "ETH SWITCH" }
+  }
+}

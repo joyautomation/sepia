@@ -1,0 +1,26 @@
+{
+  "title": "Digital outputs",
+  "kind": "ladder",
+  "lines": [800, 815],
+  "rails": ["+24", "0V"],
+  "place": [
+    { "piece": "RIO1-3.do0", "line": 800, "col": 1 },
+    { "piece": "CR101.coil", "line": 800, "col": 10 },
+    { "piece": "RIO1-3.do1", "line": 801, "col": 1 },
+    { "piece": "CR201.coil", "line": 801, "col": 10 },
+    { "piece": "RIO1-3.do2", "line": 802, "col": 1 },
+    { "piece": "PL101.lamp", "line": 802, "col": 10 },
+    { "piece": "RIO1-3.do3", "line": 803, "col": 1 },
+    { "piece": "PL102.lamp", "line": 803, "col": 10 },
+    { "piece": "RIO1-3.do4", "line": 804, "col": 1 },
+    { "piece": "PL201.lamp", "line": 804, "col": 10 },
+    { "piece": "RIO1-3.do5", "line": 805, "col": 1 },
+    { "piece": "PL202.lamp", "line": 805, "col": 10 },
+    { "piece": "RIO1-3.do6", "line": 806, "col": 1 },
+    { "piece": "PL1.lamp", "line": 806, "col": 10 },
+    { "piece": "RIO1-3.do7", "line": 807, "col": 1 },
+    { "piece": "BCN1.light", "line": 807, "col": 10 },
+    { "piece": "RIO1-3.do8", "line": 808, "col": 1 },
+    { "piece": "BCN1.horn", "line": 808, "col": 10 }
+  ]
+}

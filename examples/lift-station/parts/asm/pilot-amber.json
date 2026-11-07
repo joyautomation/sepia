@@ -1,0 +1,11 @@
+{
+  "desc": "Pilot light, amber: operator and LED",
+  "base": "eaton/ht8hfav3",
+  "pieces": {
+    "lamp": { "symbol": "nema/pilot", "terminals": ["X1", "X2"], "text": "A" }
+  },
+  "bom": [
+    { "part": "eaton/ht8hfav3" },
+    { "part": "eaton/ht8ledaf3" }
+  ]
+}

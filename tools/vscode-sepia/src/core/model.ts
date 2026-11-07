@@ -39,14 +39,43 @@ export function splitTerminal(ref: string): [string, string] {
   return i < 0 ? [ref, ""] : [ref.slice(0, i), ref.slice(i + 1)];
 }
 
+/** Repeated pieces spelled out: "di{n}" × 16 → di0…di15. */
+export function expandPieces(pieces: Record<string, PieceDef> | undefined): Record<string, PieceDef> {
+  const out: Record<string, PieceDef> = {};
+  for (const [name, def] of Object.entries(pieces ?? {})) {
+    if (!def?.count) {
+      out[name] = def;
+      continue;
+    }
+    const { count, from = 1, ...rest } = def;
+    for (let n = from; n < from + count; n++) {
+      const sub = (x: string) => x.replaceAll("{n}", String(n));
+      out[sub(name)] = { ...rest, terminals: (rest.terminals ?? []).map(sub) };
+    }
+  }
+  return out;
+}
+
+/** A part as the drawing sees it: an assembly takes its base's fields and
+ * pieces, and adds or overrides its own. */
+export function resolvePart(parts: Record<string, Part>, id: string, seen: Set<string> = new Set()): Part | undefined {
+  const part = parts[id];
+  if (!part || !part.base || seen.has(id)) return part ? { ...part, pieces: expandPieces(part.pieces) } : undefined;
+  seen.add(id);
+  const base = resolvePart(parts, part.base, seen);
+  return { ...base, ...part, pieces: { ...base?.pieces, ...expandPieces(part.pieces) }, ratings: part.ratings ?? base?.ratings };
+}
+
 export function buildIndex(p: Project): Index {
   const devices = new Map<string, Device>();
   const pieces = new Map<string, PieceInfo>();
   const terminals = new Map<string, TerminalInfo>();
+  const resolved = new Map<string, Part | undefined>();
   for (const d of p.panel.devices ?? []) {
     if (!d?.tag || devices.has(d.tag)) continue;
     devices.set(d.tag, d);
-    const part = p.parts[d.part];
+    if (!resolved.has(d.part)) resolved.set(d.part, resolvePart(p.parts, d.part));
+    const part = resolved.get(d.part);
     for (const [name, def] of Object.entries(part?.pieces ?? {})) {
       const info: PieceInfo = { ref: `${d.tag}.${name}`, device: d, part, name, def };
       pieces.set(info.ref, info);
@@ -87,7 +116,7 @@ export function crossRefs(ix: Index, piece: PieceInfo): { line: number; nc: bool
   for (const [ref, info] of ix.pieces) {
     if (info.device !== piece.device || ref === piece.ref) continue;
     for (const at of ix.placed.get(ref) ?? []) {
-      out.push({ line: at.line, nc: /-nc$|^nema\/ol-nc$/.test(info.def.symbol), sheet: at.sheet });
+      out.push({ line: at.line, nc: /-nc$/.test(info.def.symbol), sheet: at.sheet });
     }
   }
   return out.sort((a, b) => a.line - b.line);

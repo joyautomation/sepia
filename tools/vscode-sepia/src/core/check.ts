@@ -2,8 +2,8 @@
 // files. Pure: a Project in, Problems out. The extension shows them in the
 // Problems panel, the CLI prints them (JSON for agents).
 
-import { buildIndex, splitPiece, splitTerminal } from "./model.ts";
-import { LADDER_COLS, SYMBOLS } from "./symbols.ts";
+import { buildIndex, resolvePart, splitPiece, splitTerminal } from "./model.ts";
+import { DEFAULT_COLS, sheetKind, SYMBOLS } from "./symbols.ts";
 import type { Problem, Project } from "./types.ts";
 
 export function check(p: Project): Problem[] {
@@ -25,6 +25,14 @@ export function check(p: Project): Problem[] {
     if (seen.has(d.tag)) add("error", "panel.json", "device-dup", `device ${d.tag} is listed twice`, `"${d.tag}"`);
     seen.add(d.tag);
     if (!p.parts[d.part]) add("error", "panel.json", "part-unknown", `${d.tag}: part "${d.part}" isn't in parts/`, `"${d.part}"`);
+  }
+
+  // Assemblies
+  for (const [id, part] of Object.entries(p.parts)) {
+    const file = `parts/${id}.json`;
+    if (part.base && !p.parts[part.base]) add("error", file, "part-base", `base part "${part.base}" isn't in parts/`, `"${part.base}"`);
+    for (const b of part.bom ?? [])
+      if (!p.parts[b.part]) add("warning", file, "bom-part", `bill of materials names "${b.part}", which isn't in parts/`, `"${b.part}"`);
   }
 
   // Wires
@@ -63,7 +71,9 @@ export function check(p: Project): Problem[] {
   for (const s of p.sheets) {
     const file = `sheets/${s.file}`;
     const sh = s.sheet;
-    if (sh.kind && sh.kind !== "ladder") add("info", file, "sheet-kind", `sheet kind "${sh.kind}" isn't drawn yet`);
+    const kind = sheetKind(sh.kind);
+    if (!kind) add("info", file, "sheet-kind", `sheet kind "${sh.kind}" isn't drawn yet`);
+    const cols = sh.cols ?? DEFAULT_COLS[kind ?? "ladder"];
     const [lo, hi] = sh.lines ?? [0, 0];
     for (const r of sh.rails ?? []) if (!ix.wires.has(r)) add("error", file, "rail-wire", `rail wire ${r} isn't in panel.json`, `"${r}"`);
     const cells = new Map<string, string>();
@@ -77,10 +87,11 @@ export function check(p: Project): Problem[] {
       } else {
         const g = SYMBOLS[info.def.symbol];
         if (!g) add("error", file, "symbol-unknown", `${pl.piece}: symbol ${info.def.symbol} isn't built in`, at);
-        else if (!g.ladder) add("error", file, "symbol-ladder", `${pl.piece}: ${info.def.symbol} can't go on a ladder line`, at);
+        else if (kind && !g.kinds.includes(kind))
+          add("error", file, "symbol-kind", `${pl.piece}: ${info.def.symbol} goes on a ${g.kinds.join(" or ")} sheet, not a ${kind} sheet`, at);
       }
       if (sh.lines && (pl.line < lo || pl.line > hi)) add("error", file, "line-range", `${pl.piece}: line ${pl.line} is outside ${lo}–${hi}`, at);
-      if (!(pl.col >= 1 && pl.col <= LADDER_COLS)) add("error", file, "col-range", `${pl.piece}: column ${pl.col} is outside 1–${LADDER_COLS}`, at);
+      if (!(pl.col >= 1 && pl.col <= cols)) add("error", file, "col-range", `${pl.piece}: column ${pl.col} is outside 1–${cols}`, at);
       const cell = `${pl.line}/${pl.col}`;
       const other = cells.get(cell);
       if (other) add("error", file, "cell-taken", `${pl.piece} and ${other} are both at line ${pl.line}, column ${pl.col}`, at);
@@ -117,7 +128,7 @@ function checkSccr(p: Project, add: (s: Problem["severity"], f: string, c: strin
   const availKa = (svc.transformerKva * 1000) / (Math.sqrt(3) * svc.volts) / (svc.transformerZPct / 100) / 1000;
   let lowest: { ka: number; tags: string[]; part: string } | undefined;
   for (const d of p.panel.devices ?? []) {
-    const sccr = (p.parts[d.part]?.ratings as { sccr?: { ka?: number | null }[] } | undefined)?.sccr;
+    const sccr = (resolvePart(p.parts, d.part)?.ratings as { sccr?: { ka?: number | null }[] } | undefined)?.sccr;
     const ka = Math.min(...(sccr ?? []).map((r) => r.ka ?? Infinity));
     if (!isFinite(ka)) continue;
     if (!lowest || ka < lowest.ka) lowest = { ka, tags: [d.tag], part: d.part };
@@ -132,14 +143,15 @@ function checkSccr(p: Project, add: (s: Problem["severity"], f: string, c: strin
 
 /** `numbering.default: "line"` (docs/design.md §3.1): a wire takes the
  * number of the line where it first appears, with a letter when that line
- * starts several (302, 302A, 302B). Rails and non-numeric names (+24, 0V)
- * are left alone. */
+ * starts several (302, 302A, 302B). Power conductors add the phase to the
+ * branch number (103L1, 103T1). Rails and names that don't start with a
+ * number (+24, 0V, L1) are left alone. */
 function checkLineNumbers(p: Project, ix: ReturnType<typeof buildIndex>, add: (s: Problem["severity"], f: string, c: string, m: string, find?: string) => void) {
   if ((p.sepia.numbering?.default ?? "line") !== "line") return;
   const rails = new Set(p.sheets.flatMap((s) => s.sheet.rails ?? []));
   for (const w of p.panel.wires ?? []) {
     if (!w?.no || rails.has(w.no)) continue;
-    const m = /^(\d+)[A-Z]?$/.exec(w.no);
+    const m = /^(\d+)(?:[A-Z]|[A-Z]\d)?$/.exec(w.no);
     if (!m) continue;
     const lines = (w.run ?? []).flatMap((t) => {
       const info = ix.terminals.get(t);
@@ -148,6 +160,6 @@ function checkLineNumbers(p: Project, ix: ReturnType<typeof buildIndex>, add: (s
     if (!lines.length) continue;
     const first = Math.min(...lines);
     if (Number(m[1]) !== first)
-      add("warning", "panel.json", "wire-numbering", `wire ${w.no} starts on line ${first}, so line numbering makes it ${first} or ${first}A, ${first}B…`, `"no": "${w.no}"`);
+      add("warning", "panel.json", "wire-numbering", `wire ${w.no} starts on line ${first}, so line numbering makes it ${first}, ${first}A, ${first}B… (or ${first}L1… for power)`, `"no": "${w.no}"`);
   }
 }

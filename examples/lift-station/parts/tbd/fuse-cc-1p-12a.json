@@ -1,0 +1,6 @@
+{
+  "desc": "1-pole Class CC holder with a 12 A time-delay fuse (A/C, per its listing)",
+  "pieces": {
+    "fuse": { "symbol": "nema/fuse", "terminals": ["1", "2"] }
+  }
+}

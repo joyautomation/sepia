@@ -1,0 +1,31 @@
+{
+  "title": "Power distribution",
+  "kind": "power",
+  "lines": [100, 107],
+  "cols": 6,
+  "notes": { "100": "Incoming service, main disconnect", "103": "Pump P-101, drive", "104": "Pump P-101, bypass", "105": "Pump P-102, drive", "106": "Pump P-102, bypass" },
+  "place": [
+    { "piece": "MTS.load", "line": 100, "col": 1 },
+    { "piece": "Q1.main", "line": 100, "col": 2 },
+    { "piece": "SPD1.main", "line": 101, "col": 3 },
+    { "piece": "FU7.fuse", "line": 102, "col": 3 },
+    { "piece": "PMR1.sense", "line": 102, "col": 4 },
+    { "piece": "FU101.fuse", "line": 103, "col": 3 },
+    { "piece": "VFD101.power", "line": 103, "col": 4 },
+    { "piece": "M101A.power", "line": 103, "col": 5 },
+    { "piece": "P-101.motor", "line": 103, "col": 6 },
+    { "piece": "FU104.fuse", "line": 104, "col": 3 },
+    { "piece": "M101B.power", "line": 104, "col": 4 },
+    { "piece": "OL101.heater", "line": 104, "col": 5 },
+    { "piece": "FU201.fuse", "line": 105, "col": 3 },
+    { "piece": "VFD201.power", "line": 105, "col": 4 },
+    { "piece": "M201A.power", "line": 105, "col": 5 },
+    { "piece": "P-102.motor", "line": 105, "col": 6 },
+    { "piece": "FU204.fuse", "line": 106, "col": 3 },
+    { "piece": "M201B.power", "line": 106, "col": 4 },
+    { "piece": "OL201.heater", "line": 106, "col": 5 },
+    { "piece": "FU10.fuse", "line": 107, "col": 3 },
+    { "piece": "T1.main", "line": 107, "col": 4 },
+    { "piece": "FU12.fuse", "line": 107, "col": 5 }
+  ]
+}

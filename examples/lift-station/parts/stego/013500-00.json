@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Stego",
+  "catalog": "013500-00",
+  "desc": "Door switch, SPDT 10 A 250 VAC",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/enclosures_-a-_racks/enclosure_parts_-a-_accessories/door_switches/013500-00",
+  "notes": "Wired to close when the door opens. Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "sw": { "symbol": "nema/contact-no", "terminals": ["COM", "NO"] }
+  }
+}

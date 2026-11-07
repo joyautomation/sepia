@@ -1,0 +1,7 @@
+{
+  "desc": "24 V lead battery module for the QUINT4-UPS (catalog number to confirm)",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "bat": { "symbol": "nema/box", "terminals": ["-", "+"], "text": "BATTERY" }
+  }
+}

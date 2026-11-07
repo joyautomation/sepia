@@ -1,0 +1,11 @@
+{
+  "manufacturer": "Stego",
+  "catalog": "027009-01",
+  "desc": "Enclosure heater, 550 W 120 VAC, with thermostat 0–60 °C",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/enclosure_thermal_management_-a-_lights/heaters/027009-01",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "htr": { "symbol": "nema/heater", "terminals": ["L", "N"] }
+  },
+  "ratings": { "watts": 550 }
+}

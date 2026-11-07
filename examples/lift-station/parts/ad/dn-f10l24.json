@@ -1,0 +1,11 @@
+{
+  "manufacturer": "AutomationDirect",
+  "catalog": "DN-F10L24",
+  "desc": "Fused terminal block, 5×20 mm fuse, 24 V LED",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/wiring_solutions/terminal_blocks/circuit_protection_terminal_blocks/dn-f10l24",
+  "notes": "Fuse sold separately; the device's rating says which.",
+  "pieces": {
+    "fuse": { "symbol": "nema/fuse", "terminals": ["1", "2"] }
+  },
+  "mount": { "din": "35mm", "width_mm": 10 }
+}

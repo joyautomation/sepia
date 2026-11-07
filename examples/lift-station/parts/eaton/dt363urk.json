@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Eaton",
+  "catalog": "DT363URK",
+  "desc": "Safety switch, 100 A 3P 600 VAC, heavy duty, double throw, non-fusible, NEMA 3R (manual transfer switch)",
+  "source": "https://www.gexpro.com/p/364962/eaton/safety-switch-100a-3p-600vac-250vdc-hd-non-fusible-nema-3r/782113426426/dt363urk",
+  "notes": "Outside the panel. Terminal names here are the load side by function (T1–T3, N), not read off the switch.",
+  "pieces": {
+    "load": { "symbol": "power/source", "terminals": ["T1", "T2", "T3", "N"], "text": "MANUAL TRANSFER SWITCH" }
+  }
+}

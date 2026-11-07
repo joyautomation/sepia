@@ -1,0 +1,8 @@
+{
+  "desc": "GS4-4015 drive with its Modbus TCP card",
+  "base": "ad/gs4-4015",
+  "bom": [
+    { "part": "ad/gs4-4015" },
+    { "part": "ad/gs4-cm-modtcp" }
+  ]
+}

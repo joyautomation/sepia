@@ -1,0 +1,30 @@
+{
+  "title": "24 VDC distribution",
+  "kind": "ladder",
+  "lines": [500, 515],
+  "rails": ["+24", "0V"],
+  "notes": { "500": "24 VDC supply (120 VAC side /207)", "503": "UPS battery", "513": "Remote I/O field power" },
+  "place": [
+    { "piece": "PS1.dc", "line": 500, "col": 2 },
+    { "piece": "UPS1.in", "line": 501, "col": 2 },
+    { "piece": "UPS1.out", "line": 502, "col": 2 },
+    { "piece": "UPS1.bat", "line": 503, "col": 2 },
+    { "piece": "BAT1.bat", "line": 504, "col": 2 },
+    { "piece": "FTB1.fuse", "line": 505, "col": 1 },
+    { "piece": "PC1.pwr", "line": 505, "col": 6 },
+    { "piece": "FTB2.fuse", "line": 506, "col": 1 },
+    { "piece": "RIO1.sys", "line": 506, "col": 6 },
+    { "piece": "FTB3.fuse", "line": 507, "col": 1 },
+    { "piece": "SW1.pwr", "line": 507, "col": 6 },
+    { "piece": "FTB4.fuse", "line": 508, "col": 1 },
+    { "piece": "RTR1.pwr", "line": 508, "col": 6 },
+    { "piece": "FTB5.fuse", "line": 509, "col": 1 },
+    { "piece": "ISR1.pwr", "line": 509, "col": 6 },
+    { "piece": "ISB1.pwr", "line": 510, "col": 6 },
+    { "piece": "FTB6.fuse", "line": 511, "col": 1 },
+    { "piece": "PPR101.pwr", "line": 511, "col": 6 },
+    { "piece": "PPR201.pwr", "line": 512, "col": 6 },
+    { "piece": "FTB7.fuse", "line": 513, "col": 1 },
+    { "piece": "RIO1.field", "line": 513, "col": 6 }
+  ]
+}

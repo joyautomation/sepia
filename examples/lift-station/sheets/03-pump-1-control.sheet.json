@@ -2,7 +2,7 @@
   "title": "Pump 1 control",
   "kind": "ladder",
   "lines": [300, 315],
-  "rails": ["1", "2"],
+  "rails": ["211", "2"],
   "place": [
     { "piece": "SS101.left", "line": 302, "col": 1 },
     { "piece": "SS102.left", "line": 302, "col": 4 },

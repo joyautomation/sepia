@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { applySheetOp } from "./ops.ts";
 import { formatJson, minimalEdit } from "./format.ts";
 
-const sheetText = readFileSync(new URL("../../../../examples/lift-station/sheets/01-pump-1-control.sheet.json", import.meta.url), "utf8");
+const sheetText = readFileSync(new URL("../../../../examples/lift-station/sheets/03-pump-1-control.sheet.json", import.meta.url), "utf8");
 
 test("the example sheet is already canonical", () => {
   assert.equal(formatJson(JSON.parse(sheetText)), sheetText);

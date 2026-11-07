@@ -1,0 +1,10 @@
+{
+  "desc": "Main disconnect: FUSERBLOC 100 A with handle, shaft and 70 A Class J fuses",
+  "base": "socomec/38613010",
+  "bom": [
+    { "part": "socomec/38613010" },
+    { "part": "socomec/142d2111" },
+    { "part": "socomec/14001032" },
+    { "part": "edison/jdl70", "qty": 3 }
+  ]
+}

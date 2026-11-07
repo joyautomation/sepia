@@ -35,7 +35,7 @@ export async function run(): Promise<void> {
   console.log("ok: SCCR diagnostic on sepia.json");
 
   // The sheet opens in the custom editor.
-  const sheet = vscode.Uri.file(path.join(ws, "sheets", "01-pump-1-control.sheet.json"));
+  const sheet = vscode.Uri.file(path.join(ws, "sheets", "03-pump-1-control.sheet.json"));
   await vscode.commands.executeCommand("vscode.openWith", sheet, "sepia.sheetEditor");
   await until("custom editor tab", () =>
     vscode.window.tabGroups.activeTabGroup.activeTab?.input instanceof vscode.TabInputCustom ? true : undefined

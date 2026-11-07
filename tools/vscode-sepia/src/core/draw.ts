@@ -7,7 +7,12 @@
 
 export type Stroke = { color?: string; width?: number; dash?: number[] };
 
-export type Seg = ["M", number, number] | ["L", number, number] | ["Z"];
+export type Seg =
+  | ["M", number, number]
+  | ["L", number, number]
+  /** Cubic Bézier: two control points, then the end point. */
+  | ["C", number, number, number, number, number, number]
+  | ["Z"];
 
 export type TextStyle = { size: number; anchor?: "start" | "middle" | "end"; bold?: boolean; color?: string };
 
@@ -93,7 +98,10 @@ export class Pen {
   }
 
   path(d: Seg[], o: { fill?: string; s?: Stroke } = {}): void {
-    const moved = d.map((s): Seg => (s[0] === "Z" ? s : [s[0], s[1] + this.ox, s[2] + this.oy]));
+    const [ox, oy] = [this.ox, this.oy];
+    const moved = d.map((s): Seg =>
+      s[0] === "Z" ? s : s[0] === "C" ? ["C", s[1] + ox, s[2] + oy, s[3] + ox, s[4] + oy, s[5] + ox, s[6] + oy] : [s[0], s[1] + ox, s[2] + oy]
+    );
     this.push({ t: "path", d: moved, ...o });
   }
 
@@ -101,6 +109,11 @@ export class Pen {
     if (text === "") return;
     this.push({ t: "text", x: x + this.ox, y: y + this.oy, text, ...style });
   }
+}
+
+/** A path's SVG `d`. */
+export function svgPath(d: Seg[]): string {
+  return d.map((s) => (s[0] === "Z" ? "Z" : s[0] === "C" ? `C${s[1]},${s[2]} ${s[3]},${s[4]} ${s[5]},${s[6]}` : `${s[0]}${s[1]},${s[2]}`)).join(" ");
 }
 
 /** Where a text primitive starts, after anchoring. */

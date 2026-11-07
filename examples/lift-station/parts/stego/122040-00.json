@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Stego",
+  "catalog": "122040-00",
+  "desc": "Enclosure LED light, 120 VAC 16 W, own switch and receptacle",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/enclosure_thermal_management_-a-_lights/enclosure_lighting/122040-00",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "lamp": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "LIGHT" }
+  }
+}

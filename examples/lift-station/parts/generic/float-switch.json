@@ -1,0 +1,7 @@
+{
+  "desc": "Float switch, N.O. on rising level, for an IS circuit (make to pick)",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "sw": { "symbol": "nema/float-no", "terminals": ["1", "2"] }
+  }
+}

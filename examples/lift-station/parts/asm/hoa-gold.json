@@ -1,0 +1,13 @@
+{
+  "desc": "HOA selector with two gold blocks added, so Hand and Auto reach 24 VDC inputs",
+  "base": "eaton/ht8jbh1daa5",
+  "notes": "Gold block terminal numbers by mounting position; check against the kit drawing.",
+  "pieces": {
+    "left-g": { "symbol": "nema/selector-no", "terminals": ["23", "24"], "position": 0 },
+    "right-g": { "symbol": "nema/selector-no", "terminals": ["33", "34"], "position": 2 }
+  },
+  "bom": [
+    { "part": "eaton/ht8jbh1daa5" },
+    { "part": "eaton/ht8e", "qty": 2 }
+  ]
+}

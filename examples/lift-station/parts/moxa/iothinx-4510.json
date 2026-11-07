@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Moxa",
+  "catalog": "ioThinx 4510",
+  "desc": "Remote I/O head, Modbus TCP server, 12–48 VDC",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "sys": { "symbol": "nema/box", "terminals": ["SYS+", "SYS-"], "text": "RIO SYSTEM" },
+    "field": { "symbol": "nema/box", "terminals": ["FP+", "FP-"], "text": "RIO FIELD" }
+  }
+}

@@ -2,13 +2,13 @@
   import { onMount } from "svelte";
   import type { Problem, Project } from "../src/core/types.ts";
   import { buildIndex, otherEnds } from "../src/core/model.ts";
-  import { layoutLadder } from "../src/core/ladder.ts";
-  import { SYMBOLS } from "../src/core/symbols.ts";
+  import { layoutSheet } from "../src/core/ladder.ts";
+  import { sheetKind, SYMBOLS } from "../src/core/symbols.ts";
   import { vscode } from "./vscodeApi.ts";
   import Sheet from "./Sheet.svelte";
 
   type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
-  type Drag = { ref: string; symbol: string; line: number; col: number; over: boolean; fromList: boolean; start?: { line: number; col: number } };
+  type Drag = { ref: string; symbol: string; n: number; text?: string; line: number; col: number; over: boolean; fromList: boolean; start?: { line: number; col: number } };
 
   let project = $state<Project | null>(null);
   let sheetName = $state("");
@@ -54,17 +54,18 @@
     const sheets = project.sheets.map((s, i) => (i === sheetIdx ? { ...s, sheet: { ...s.sheet, place } } : s));
     const p = { ...project, sheets };
     const ix = buildIndex(p);
-    return { p, ix, sheet: sheets[sheetIdx], layout: layoutLadder(p, sheets[sheetIdx], ix) };
+    return { p, ix, sheet: sheets[sheetIdx], layout: layoutSheet(p, sheets[sheetIdx], ix) };
   });
 
   const notDrawn = $derived.by(() => {
     if (!view) return [];
     const out: { ref: string; tag: string; name: string; symbol: string; desc: string; wired: boolean }[] = [];
+    const kind = sheetKind(view.sheet.sheet.kind) ?? "ladder";
     for (const [ref, info] of view.ix.pieces) {
-      if (view.ix.placed.has(ref) || !SYMBOLS[info.def.symbol]?.ladder) continue;
+      if (view.ix.placed.has(ref) || !SYMBOLS[info.def.symbol]?.kinds.includes(kind)) continue;
       const wired = info.def.terminals.some((t) => view.ix.wireAt.has(`${info.device.tag}:${t}`));
       // Unused I/O points would swamp the list.
-      if (!wired && info.def.symbol.startsWith("plc/")) continue;
+      if (!wired && (info.def.symbol.startsWith("plc/") || info.def.symbol === "nema/terminal")) continue;
       out.push({ ref, tag: info.device.tag, name: info.name, symbol: info.def.symbol, desc: info.device.desc ?? "", wired });
     }
     return out;
@@ -80,12 +81,13 @@
     selected = { kind: "piece", ref };
     const pc = view?.layout.pieces.find((p) => p.ref === ref);
     if (!pc) return;
-    drag = { ref, symbol: pc.info?.def.symbol ?? "", line: pc.line, col: pc.col, over: false, fromList: false, start: { line: pc.line, col: pc.col } };
+    drag = { ref, symbol: pc.info?.def.symbol ?? "", n: pc.info?.def.terminals.length ?? 2, text: pc.info?.def.text, line: pc.line, col: pc.col, over: false, fromList: false, start: { line: pc.line, col: pc.col } };
   }
   function pickFromList(e: PointerEvent, ref: string, symbol: string) {
     e.preventDefault();
     selected = { kind: "piece", ref };
-    drag = { ref, symbol, line: 0, col: 0, over: false, fromList: true };
+    const def = view?.ix.pieces.get(ref)?.def;
+    drag = { ref, symbol, n: def?.terminals.length ?? 2, text: def?.text, line: 0, col: 0, over: false, fromList: true };
   }
   function move(cell: { line: number; col: number } | null) {
     if (!drag) return;
@@ -153,7 +155,7 @@
   <div class="app" class:dragging={!!drag} class:bare>
     <header>
       <span class="title">{view.sheet.sheet.title ?? sheetName}</span>
-      <span class="muted">{project.sepia.drawing} · sheet {sheetIdx + 1} of {project.sheets.length} · lines {view.sheet.sheet.lines?.join("–")}</span>
+      <span class="muted">{project.sepia.drawing} · sheet {sheetIdx + 1} of {project.sheets.length} · {view.layout.frame.kind === "power" ? "branches" : "lines"} {view.sheet.sheet.lines?.join("–")}</span>
       <span class="spacer"></span>
       <button onclick={toggleBare} title="Show or hide the side panels (P)">{bare ? "Show panels" : "Hide panels"}</button>
       <button onclick={() => sheetView?.fit()} title="Fit (F)">Fit</button>
@@ -169,7 +171,7 @@
           <span class="num">{i + 1}</span>{s.sheet.title ?? s.name}
         </button>
       {/each}
-      <h3>Not drawn <span class="muted">drag onto a line</span></h3>
+      <h3>Not drawn <span class="muted">drag onto a {view.layout.frame.kind === "power" ? "branch" : "line"}</span></h3>
       {#each notDrawn.filter((n) => n.wired) as n (n.ref)}
         <div class="row draggable" role="button" tabindex="-1" onpointerdown={(e) => pickFromList(e, n.ref, n.symbol)} title={n.desc}>
           <b>{n.tag}</b>.{n.name} <span class="muted">{n.symbol.split("/")[1]}</span>

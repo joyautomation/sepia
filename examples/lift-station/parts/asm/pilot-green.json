@@ -1,0 +1,11 @@
+{
+  "desc": "Pilot light, green: operator and LED",
+  "base": "eaton/ht8hfgv3",
+  "pieces": {
+    "lamp": { "symbol": "nema/pilot", "terminals": ["X1", "X2"], "text": "G" }
+  },
+  "bom": [
+    { "part": "eaton/ht8hfgv3" },
+    { "part": "eaton/ht8ledgf3" }
+  ]
+}

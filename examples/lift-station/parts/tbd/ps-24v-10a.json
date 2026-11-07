@@ -1,0 +1,8 @@
+{
+  "desc": "24 VDC 10 A power supply (parts.md: Rhino PSR-24-240 or Mean Well SDR-240-24)",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "ac": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "24 VDC PS" },
+    "dc": { "symbol": "nema/box", "terminals": ["+V", "-V"], "text": "24 VDC OUT" }
+  }
+}

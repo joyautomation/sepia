@@ -22,6 +22,10 @@ export type Device = {
   legend?: string[];
   /** What each I/O point means, by terminal: { "DI0": "Pump 1 drive output closed" }. */
   io?: Record<string, string>;
+  /** Outside the enclosure (a motor, a float, the transfer switch). */
+  field?: boolean;
+  /** Printed under the tag: a fuse size, a breaker trip, a setting ("45 A J"). */
+  rating?: string;
   [k: string]: unknown;
 };
 
@@ -35,6 +39,13 @@ export type PieceDef = {
   terminals: string[];
   /** Selector contacts: which legend position closes them. */
   position?: number;
+  /** Words inside a box symbol ("24 VDC SUPPLY", "A/C"). */
+  text?: string;
+  /** Repeat: `count` pieces numbered from `from` (default 1). "{n}" in the
+   * piece name and its terminals becomes the number: "di{n}" with
+   * terminals ["DI{n}"], count 16, from 0 → di0…di15. */
+  count?: number;
+  from?: number;
 };
 
 export type Part = {
@@ -45,17 +56,31 @@ export type Part = {
   source?: string;
   notes?: string;
   pieces?: Record<string, PieceDef>;
+  /** An assembly: this part is `base` plus what's in `bom`, with the base's
+   * pieces and ratings unless it lists its own. A selector with two extra
+   * contact blocks, a fuse holder with its fuses. */
+  base?: string;
+  bom?: { part: string; qty?: number }[];
   [k: string]: unknown;
 };
 
+/** Where a piece sits. On a ladder sheet a line is a horizontal rung and
+ * `col` counts left to right along it. On a power sheet a line is a vertical
+ * branch and `col` counts down it. Either way a line is a path of current
+ * and `col` is a position along it. */
 export type Placement = { piece: string; line: number; col: number };
 
 export type SheetJson = {
   title?: string;
   kind?: string;
   lines?: [number, number];
-  /** Wire numbers drawn as the left and right ladder rails. */
-  rails?: [string, string];
+  /** Positions along each line (ladder 10, power 6). */
+  cols?: number;
+  /** Ladder: the wire numbers drawn as the left and right rails. */
+  rails?: string[];
+  /** What a line is for, by line number, where the drawing's own guess
+   * (the device on it) isn't what you'd write: { "104": "Pump 1 bypass" }. */
+  notes?: Record<string, string>;
   place?: Placement[];
 };
 

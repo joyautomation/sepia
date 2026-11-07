@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Stratus",
+  "catalog": "TA10-059-16-4X",
+  "desc": "Enclosure air conditioner, 5910 BTU/h, 115 VAC, 6.14 A run, 32.3 A inrush, Type 4X",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/enclosures_-z-_subpanels_-z-_thermal_management_-z-_lighting/enclosure_thermal_management/air_conditioners/ta10-059-16-4x",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "ac": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "A/C" }
+  }
+}

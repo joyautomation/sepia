@@ -1,0 +1,8 @@
+{
+  "desc": "Interposing relay, 24 VDC coil, DPDT, on its socket",
+  "base": "ad/782-2c-24d",
+  "bom": [
+    { "part": "ad/782-2c-24d" },
+    { "part": "ad/782-2c-skt" }
+  ]
+}

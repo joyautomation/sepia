@@ -122,7 +122,9 @@ formats matters more than hand-typing.)
 - **Wire numbering is a project option** (James, 11-06), and it can be set
   differently per wire class:
   - `line`: the wire takes the line (rung) number where it starts, with a
-    suffix when one line has several (302, 302A).
+    suffix when one line has several (302, 302A). On a power sheet the
+    branch number takes the phase or terminal instead (103L1, 103U,
+    103T1). Incoming conductors keep their phase names (L1, L2, L3, N).
   - `from-to`: each end of the wire is marked with the terminal at the
     other end (`X1:5` at the PLC, `PLC1:I-00` at the strip). This is common
     for external connections.
@@ -143,7 +145,7 @@ needs get built:
 | Type | Placement | Content | First lesson |
 |---|---|---|---|
 | Cover | none | generated: title, sheet index, notes, PE stamp | PNL-F02 |
-| One-line (power distribution) | free, along a bus | incoming power, disconnect, branches, transformer, supplies | PNL-F03 |
+| Power (three-line) | branch and position | incoming power, disconnect, bus, branches, drives, transformer | PNL-F03 |
 | Motor control (ladder) | line and column | rungs between L1/L2 rails, line numbers, cross-references | PNL-F02, F07 |
 | Control power distribution | ladder | 120 VAC and 24 VDC fan-out, fuses, commons | PNL-F03 |
 | PLC I/O | per module, per point | a module as a box with one row per point, field device and wire per row | PNL-F08, F09 |
@@ -185,9 +187,22 @@ autoroutes a pipe between two ports.
   302 prints the lines of its contacts, wherever they're placed.
 - If a sheet leaves a piece out, it isn't drawn. If two sheets place the same
   piece, the core flags it.
-- Generated sheets (cover, one-line, backpanel layout, BOM, wire list,
-  terminal plan) only say which kind they are. Their content comes from the
-  data.
+- Generated sheets (cover, backpanel layout, BOM, wire list, terminal
+  plan) only say which kind they are. Their content comes from the data.
+
+**Power sheets (built 11-07) are the ladder turned 90°.** A line is a
+vertical branch and `col` counts positions down it (six by default), so
+the placement format, the editor's drag and the checks are the same as a
+ladder's. Power symbols have one pole per phase, line terminals on top and
+load terminals underneath, and pole 1 always sits in the same place. So a
+2-pole fuse lines up with phases 1 and 2 of a 3-pole contactor below it.
+Wires whose ends line up drop straight down. Anything else (the bus under
+the main disconnect, the motor leads where the bypass rejoins the drive
+output) runs on a horizontal track in the gap under its highest end, with
+the tracks stacked L1 over L2 over L3. A branch's caption comes from what
+it feeds, and the sheet can override it with `notes`. Because a coil's
+cross-reference counts the power contacts too, it reads "103 305 600"
+(power branch, interlock, aux).
 
 ### 3.3 Parts and symbols
 
@@ -203,7 +218,7 @@ pieces it has, and which symbol and terminals each piece uses:
   "desc": "IEC contactor, 9 A, 120 VAC coil, 1 N.O. aux",
   "pieces": {
     "coil":  { "symbol": "nema/coil",       "terminals": ["A1", "A2"] },
-    "power": { "symbol": "nema/contact-3p", "terminals": ["1/L1", "2/T1", "3/L2", "4/T2", "5/L3", "6/T3"] },
+    "power": { "symbol": "power/contact",   "terminals": ["1/L1", "2/T1", "3/L2", "4/T2", "5/L3", "6/T3"] },
     "aux1":  { "symbol": "nema/contact-no", "terminals": ["13", "14"] }
   },
   "ratings": {
@@ -215,6 +230,17 @@ pieces it has, and which symbol and terminals each piece uses:
   "model": { "glb": null, "step": "https://… (manufacturer)" }
 }
 ```
+
+**Assemblies (11-07).** What gets drawn is often more than one catalog
+item: a selector with two extra gold contact blocks, a fuse holder with its
+fuses, a relay on its socket. An assembly part names a `base` and a `bom`.
+It takes the base's pieces and ratings, adds its own pieces (the gold
+blocks' contacts), and the BOM lists what's actually bought. The device
+points at the assembly, so the base part file stays a true catalog item.
+
+**Repeated pieces.** An I/O module's sixteen inputs are one entry:
+`"di{n}": { "symbol": "plc/di", "terminals": ["DI{n}"], "count": 16,
+"from": 0 }`. A terminal strip works the same way.
 
 Ratings are left null here on purpose; they come from datasheets. A check
 that needs a missing rating reports "unknown", not "pass". The ratings

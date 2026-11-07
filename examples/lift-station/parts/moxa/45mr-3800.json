@@ -1,0 +1,9 @@
+{
+  "manufacturer": "Moxa",
+  "catalog": "45MR-3800",
+  "desc": "8 AI 4–20 mA, ioThinx 4500",
+  "source": "https://www.moxa.com/en/products/industrial-edge-connectivity/controllers-and-ios/advanced-modular-remote-i-o/iothinx-4500-series/45mr-3800",
+  "pieces": {
+    "ai{n}": { "symbol": "plc/ai", "terminals": ["AI{n}"], "count": 8, "from": 0 }
+  }
+}

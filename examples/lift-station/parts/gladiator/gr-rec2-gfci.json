@@ -1,0 +1,10 @@
+{
+  "manufacturer": "Gladiator",
+  "catalog": "GR-REC2-GFCI",
+  "desc": "GFCI receptacle, 15 A 125 VAC, DIN rail",
+  "source": "https://www.automationdirect.com/adc/shopping/catalog/wire_-a-_cable_termination/wiring_devices/din_rail_receptacles/gr-rec2-gfci",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "rec": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "GFCI REC" }
+  }
+}

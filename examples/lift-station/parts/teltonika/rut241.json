@@ -1,0 +1,9 @@
+{
+  "manufacturer": "Teltonika",
+  "catalog": "RUT241",
+  "desc": "LTE Cat 4 cellular router, 9–30 VDC, DIN kit",
+  "notes": "Terminal names are functional until checked against the maker's drawing.",
+  "pieces": {
+    "pwr": { "symbol": "nema/box", "terminals": ["+", "-"], "text": "CELL ROUTER" }
+  }
+}
