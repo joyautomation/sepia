@@ -54,7 +54,12 @@ or reject what the AI did. Everything else is generated or derived.
    wire to a terminal the part doesn't have, a duplicate wire number, a
    wire with one end, an overloaded supply or an SCCR shortfall. The AI fixes
    these before you look, and anything left shows as squiggles.
-5. **The host is glue.** The model, checks and rendering run without VS Code,
+5. **Bring your own agent; no AI inside sepia** (James 11-06). sepia never
+   embeds a model or a chat. Whatever agent the user runs (Claude Code or
+   any other) drafts by editing the files. sepia's job is to make that safe
+   and fast: strict schemas, a `sepia check` command with machine-readable
+   output, and a live preview. The same tool works with no AI at all.
+6. **The host is glue.** The model, checks and rendering run without VS Code,
    so the tool can later run in a browser.
 6. **US ladder drawings first** (NFPA 79 / UL 508A practice). IEC 60617 /
    81346 come later.
