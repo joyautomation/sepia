@@ -24,8 +24,10 @@ async function main(): Promise<void> {
       vscodeExecutablePath: process.env.SEPIA_E2E_CODE || undefined,
       extensionDevelopmentPath: extRoot,
       extensionTestsPath: path.join(__dirname, "suite.js"),
-      launchArgs: [ws, "--disable-extensions", "--user-data-dir", path.join(tmp, "user"), "--skip-welcome", "--skip-release-notes", "--disable-workspace-trust"],
-      extensionTestsEnv: { SEPIA_E2E_WS: ws, SEPIA_E2E_SHOT: process.env.SEPIA_E2E_SHOT ?? "" },
+      launchArgs: [ws, "--disable-extensions", "--user-data-dir", path.join(tmp, "user"), "--skip-welcome", "--skip-release-notes", "--disable-workspace-trust",
+        // Software WebGL for the 3D view, as the gesture harness uses.
+        "--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"],
+      extensionTestsEnv: { SEPIA_E2E_WS: ws, SEPIA_E2E_SHOT: process.env.SEPIA_E2E_SHOT ?? "", SEPIA_E2E_SHOT_VIEW: process.env.SEPIA_E2E_SHOT_VIEW ?? "" },
     });
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });

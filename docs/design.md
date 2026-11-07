@@ -245,6 +245,22 @@ steps and stays on its face. The checker reports overlaps, parts off a rail
 or the backpanel, clearances, the wrong kind of mount and devices nobody
 mounted, with the numbers in each message.
 
+**The 3D view (built 11-07) is the layout sheet in depth.** `core/scene3d.ts`
+turns the same `panelLayout` into boxes in mm (x right, y down, z out from
+the back), so 2D and 3D can't disagree. Depth comes from the parts: a
+part's `mount.size_mm` depth is measured from the backpanel's face (DIN
+parts included, rail and all), a door part's from the door's inside, and
+rails and duct from `section_mm`. The enclosure part can say where its
+backpanel's face is (`panel_face_mm`), its door thickness (`door_mm`), how
+much of each side is flat (`side_flat_mm`) and its `hinge`; the defaults
+are in `scene3d.ts` and parts.md 32. Three checks only depth answers run
+with the others (`checkDepth`): a part too deep for the enclosure, a door
+operator against what's behind it, and a side unit wider than the side's
+flat. The view is a separate Vite bundle with plain three.js (`webview/
+view3d`, `vite.3d.config.mts`), opened beside the sheet by a command; it
+follows the live project and edits nothing. Threlte and hmi-3d weren't
+needed for boxes; STEP/glTF models are where they'd come in.
+
 ### 3.3 Parts and symbols
 
 **A part is a real product** (catalog number, terminals, ratings, size, 3D
@@ -341,7 +357,7 @@ revision, date, drawing number, sheet x of y.
   load + validate project                  <Sheet>, <Ladder>, <TitleBlock>
   checks → LSP diagnostics                 symbol components (nema/*)
   derived: xrefs, line numbers,            autoroute (from the mimic editor)
-    BOM, wire list, terminal plan          backpanel 2D, 3D (Threlte / hmi-3d)
+    BOM, wire list, terminal plan          backpanel 2D, 3D (three.js)
   canonical writer + structural ops        print: same display list → PDF
         │  sepia lsp · sepia derive · sepia edit   │
         └──────────── thin VS Code host ───────────┘

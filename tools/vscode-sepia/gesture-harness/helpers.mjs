@@ -161,3 +161,71 @@ export async function withEditor(sheet, fn, opts) {
 export function unplaced(p, sheet, ref) {
   return commit(p, sheet, { type: 'unplace', piece: ref });
 }
+
+/** The 3D view on a layout sheet, the project delivered and drawn. */
+export class Viewer3D {
+  static async open(sheet, { p = project(), width = 1400, height = 900 } = {}) {
+    const dir = mkdtempSync(join(tmpdir(), 'sepia-3d-'));
+    copyFileSync(join(HERE, 'host3d.html'), join(dir, 'host3d.html'));
+    copyFileSync(join(BUNDLE, 'view3d.js'), join(dir, 'view3d.js'));
+    copyFileSync(join(BUNDLE, 'view3d.css'), join(dir, 'view3d.css'));
+    const b = await Browser.launch({ headless: HEADLESS, width, height, webgl: true });
+    await b.navigate('file://' + join(dir, 'host3d.html'));
+    const v = new Viewer3D(b, sheet, p);
+    await waitUntil(() => b.eval('window.__POSTED__'), (m) => m.some((x) => x.type === 'ready'), { what: 'ready' });
+    await v.deliver(p);
+    return v;
+  }
+
+  constructor(b, sheet, p) {
+    this.b = b;
+    this.sheet = sheet;
+    this.p = p;
+  }
+
+  async deliver(p = this.p) {
+    this.p = p;
+    await this.b.eval(`window.__deliver(${JSON.stringify(message(p, this.sheet))})`);
+    await waitUntil(() => this.b.eval('!!(window.__view3d && window.__view3d.screenOf("backpanel"))'), Boolean, { what: 'the 3D scene' });
+    await sleep(100);
+  }
+
+  eval = (js) => this.b.eval(js);
+  posted = () => this.b.eval('window.__POSTED__');
+  /** A box's front-face centre on screen, by scene id ("part:VFD101"). */
+  async at(id) {
+    const pt = await this.b.eval(`window.__view3d.screenOf(${JSON.stringify(id)})`);
+    assert.ok(pt, `${id} is not in the scene`);
+    return pt;
+  }
+  async hover(pt) {
+    await this.b.moveTo(pt.x, pt.y);
+    await sleep(80);
+  }
+  async click(pt) {
+    await this.b.click(pt.x, pt.y);
+    await sleep(80);
+  }
+  async key(k, code = k, keyCode = 0) {
+    await this.b.pressKey(k, { code, keyCode });
+    await sleep(80);
+  }
+  async screenshot(file) {
+    const { data } = await this.b.send('Page.captureScreenshot', { format: 'png' });
+    writeFileSync(file, Buffer.from(data, 'base64'));
+  }
+  async close() {
+    await this.b.close();
+  }
+}
+
+/** Run `fn` against a fresh 3D view; fail if the page threw. */
+export async function withViewer(sheet, fn, opts) {
+  const v = await Viewer3D.open(sheet, opts);
+  try {
+    await fn(v);
+    assert.deepEqual(await v.eval('window.__errors'), [], 'page threw');
+  } finally {
+    await v.close();
+  }
+}

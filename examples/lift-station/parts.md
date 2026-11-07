@@ -289,12 +289,20 @@ in 31.
     grid, about two-thirds of the way up the door. The top row starts at
     650 mm down the door, 62 mm below the drives' bottom edge (565 mm on
     the backpanel plus its 23 mm inset), so no operator sits in front of a
-    drive: the depth check in 11. The disconnect handle isn't drawn yet. The beacon is on top and the air conditioner on the
-    right side.
-30. **The air conditioner on the side is tight.** The TA10 is 300 mm
-    across its mounting face and the enclosure side is 305 mm deep. It
-    fits on paper; the side flanges may not allow it, in which case it
-    goes on the door. 3D will show it.
+    drive. The rows do sit in front of rail B; the depth check (32) passes
+    them with room to spare: the tightest is PL1 (70 mm behind the door)
+    in front of M101A (91 mm off the backpanel), 282 − 70 − 91 = 121 mm. The disconnect handle isn't drawn yet. The beacon is on top
+    and the air conditioner on the right side.
+30. **The air conditioner on the side is tight, and the check says so.**
+    The TA10-059-16-4X drawing (AutomationDirect, 7/13/2022) gives
+    299.7 mm across the mounting face, mounting holes 270.5 mm apart
+    (14.6 mm in from each edge), 381 mm out from the wall, 914 mm tall,
+    and 50.8 mm clear on both sides. The enclosure side is 305 mm deep,
+    and the door opening's return and the back bend take about 30 mm of
+    that (32), leaving 275 mm flat: the side-fit check warns. Hammond's
+    drawing would settle it (as `side_flat_mm` on the enclosure part);
+    otherwise it goes on the door, below the operators, where 929 mm is
+    clear.
 31. **Estimated sizes:** Eaton HT800 operators (Eaton's sheet wasn't
     reachable: 44×57 mm legend plates, 55 mm behind the door for
     selectors and buttons, 70 mm for pilots); the Gladiator breakers
@@ -302,3 +310,14 @@ in 31.
     782 relay on socket depth. The TCF7F is a flange relay made for an
     inner-door cutout. With no dead front it goes on its 70170-D socket on
     rail C, which takes its 54×108 mm flange as the footprint.
+32. **Depth, for 3D and the depth checks (estimated where Hammond
+    doesn't publish it):** the backpanel's face is 21 mm from the outside
+    of the back (2 mm wall, 16 mm collar studs, 3 mm 12 ga panel), so
+    there are 282 mm from the backpanel to the inside of a 2 mm door
+    (305 − 21 − 2). Each side loses about 30 mm to the door opening's
+    return (20) and the back bend (10). A part's depth is measured from
+    the backpanel's face, DIN parts included (most datasheets measure from
+    the rail's back); a door operator's from the door's inside. The duct
+    is 80 mm deep (T1-2230G-1, 60 × 80), the rail 7.5 mm. A door operator
+    should leave 13 mm to whatever is behind it, for the contact blocks'
+    screws and the door closing. The door hinges on the left.

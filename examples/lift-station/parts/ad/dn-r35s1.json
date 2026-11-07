@@ -3,5 +3,6 @@
   "catalog": "DN-R35S1",
   "desc": "DIN rail, 35 × 7.5 mm, slotted steel, 1 m",
   "source": "https://www.automationdirect.com/pn/DN-R35S1",
-  "stick_mm": 1000
+  "stick_mm": 1000,
+  "section_mm": [35, 7.5]
 }

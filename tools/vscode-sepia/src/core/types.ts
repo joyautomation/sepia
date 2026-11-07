@@ -69,12 +69,18 @@ export type PartMount = {
 export type Part = {
   id: string;
   mount?: PartMount;
-  /** An enclosure's outside size, mm: width, height, depth. */
-  enclosure?: { size_mm: [number, number, number] };
+  /** An enclosure's outside size, mm: width, height, depth. For 3D and
+   * the depth checks, also: where the backpanel's face is, measured from
+   * the outside of the back (studs, standoff and panel); the door's
+   * thickness; how much of each side is flat enough to mount on; and which
+   * side the door hinges on, seen from the front. */
+  enclosure?: { size_mm: [number, number, number]; panel_face_mm?: number; door_mm?: number; side_flat_mm?: number; hinge?: "left" | "right" };
   /** A backpanel's size, mm: width, height. */
   panel?: { size_mm: [number, number] };
   /** Sold by the stick (DIN rail, wire duct), mm. */
   stick_mm?: number;
+  /** A rail's or a duct's section, mm: width and depth (out from the backpanel). */
+  section_mm?: [number, number];
   manufacturer?: string;
   catalog?: string;
   desc?: string;

@@ -273,6 +273,7 @@
       <span class="spacer"></span>
       <button onclick={toggleBare} title="Show or hide the side panels (P)">{bare ? "Show panels" : "Hide panels"}</button>
       <button onclick={() => sheetView?.fit()} title="Fit (F)">Fit</button>
+      {#if view.panel}<button onclick={() => vscode.postMessage({ type: "view3d" })} title="The panel in 3D, beside this sheet">3D</button>{/if}
       <button onclick={() => reveal(`sheets/${view.sheet.file}`)}>Sheet JSON</button>
       <button onclick={() => vscode.postMessage({ type: "print" })} title="The whole set as one PDF">Print PDF</button>
       <button onclick={() => reveal("panel.json")}>panel.json</button>

@@ -14,10 +14,11 @@ const p = loadProject(root, { rev: "A", issued: false, date: "2026-11-07", histo
 const ix = buildIndex(p);
 const layout = (name: string): LadderLayout => layoutSheet(p, p.sheets.find((s) => s.name === name)!, ix);
 
-test("the example checks clean apart from the SCCR lesson", () => {
+test("the example checks clean apart from the SCCR lesson and the A/C's side fit", () => {
   const probs = check(p).filter((x) => x.severity !== "info");
-  assert.deepEqual(probs.map((x) => x.code), ["sccr"]);
-  assert.match(probs[0].message, /GH15ET|gh15et/);
+  assert.deepEqual(probs.map((x) => x.code).sort(), ["sccr", "side-fit"]);
+  assert.match(probs.find((x) => x.code === "sccr")!.message, /GH15ET|gh15et/);
+  assert.match(probs.find((x) => x.code === "side-fit")!.message, /^AC1's mounting face is 300 mm across/);
 });
 
 test("every wire end in the example is drawn somewhere", () => {

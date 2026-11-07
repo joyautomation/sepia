@@ -75,9 +75,15 @@ JSON. The left panel lists every sheet in the set.
    Problems panel says how far into its 60 mm airflow clearance it went.
    Delete takes a part off; it shows under "Not mounted", and you can
    drag it back. The BOM now counts DIN rail and duct by the stick.
-10. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
+10. **3D** (the layout sheet's **3D** button, or "sepia: Show Panel in 3D"):
+   the same layout as boxes, from the parts' sizes. Hover a part to name
+   it; click it for how far it stands off the backpanel and how much room
+   is left to the door. **Open door** (or **D**) swings the door on its
+   hinge with its operators on it. Drag a part on the layout sheet and the
+   box moves too. The A/C shows amber: its side-fit warning.
+11. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
    writes every sheet to one PDF. It's the same drawing as on screen.
-11. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
+12. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
    mouse wheel zooms, and dragging the background pans.
 
 ### Revisions from git tags
@@ -135,7 +141,10 @@ layout sheet: parts that overlap each other, the duct or a rail; parts off
 the end of their rail or off the backpanel or door; a drive's clearance
 with something in it; a part mounted the wrong way (a DIN part screwed to
 the backpanel); a part with no size; rails off the backpanel or under duct;
-and every device in the enclosure that nobody mounted.
+and every device in the enclosure that nobody mounted. In depth: a part too
+deep to fit between the backpanel and the door; a door operator that hits
+the part behind it, or leaves less than 13 mm; and a unit on a side whose
+mounting face is wider than the side's flat.
 
 ## Not yet
 
@@ -144,8 +153,12 @@ and every device in the enclosure that nobody mounted.
   it could ship quickly. It ports cleanly.
 - Symbols are built in (`src/core/sheetDraw.ts`). Project symbols as JSON
   primitives come next.
-- No 3D view yet, and no network sheet. The layout has no auto-pack: an
-  agent (or you) writes the mounts.
+- No network sheet. The layout has no auto-pack: an agent (or you) writes
+  the mounts. The 3D view is boxes only (no STEP or glTF models yet), it
+  edits nothing, and it has no build-order steps (PNL-F13) or scripted
+  camera yet. Nothing models what a side-mounted unit puts inside the
+  enclosure, the door's swing against what's beside it, or the disconnect
+  handle.
 - Grounding conductors aren't modelled (the SPD's ground, the bonded X2 of
   the transformer, the ground bar).
 - A few parts in the example have terminal names by function where the
@@ -164,14 +177,15 @@ and every device in the enclosure that nobody mounted.
 npm test                 # core: ops, canonical JSON, PDF draft vs issued
 npm run check            # svelte-check
 SEPIA_E2E_CODE=/usr/share/code/code xvfb-run -a node out/e2e/run.js   # real VS Code
-npm run build && npm run test:gestures   # the sheet editor under real mouse and keys
+npm run build && npm run test:gestures   # the sheet editor and the 3D view under real mouse and keys
 ```
 
 `test:gestures` loads the built webview in headless Chrome and drives it
 with real pointer and key input over the DevTools protocol: drag a part on a
 ladder and on a power sheet, drop on a taken cell, drag one in from Not
 drawn, Delete, Escape mid-drag, select a wire, pan, zoom, page through the
-wire list. Each drag checks that the drop target shown mid-drag is the cell
+wire list. The 3D suite runs in software WebGL: hover, click, the door
+swinging its operators, and a live update that makes the door not close. Each drag checks that the drop target shown mid-drag is the cell
 the op names and the cell the part is drawn in after the host applies it.
 It needs Chrome on `PATH`; `GESTURE_CLIPS=<dir>` records each test to an
 mp4. See [gesture-harness/README.md](gesture-harness/README.md).

@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Stand-in for the 3D view's webview shell (src/view3d.ts): loads the
+         PRODUCTION view3d.js bundle unmodified. Posts collect on
+         window.__POSTED__; the project arrives by window.postMessage. The
+         page's own window.__view3d helpers only READ what's on screen. -->
+    <title>sepia 3D harness</title>
+    <link rel="stylesheet" href="./view3d.css" />
+    <style>
+      :root { --vscode-editor-background: #1f1f1f; --vscode-sideBar-background: #181818; --vscode-foreground: #ccc; }
+      html, body { margin: 0; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      window.__POSTED__ = [];
+      window.__errors = [];
+      window.addEventListener('error', (e) => window.__errors.push(String(e.message)));
+      window.addEventListener('unhandledrejection', (e) => window.__errors.push(String(e.reason)));
+      window.__deliver = (msg) => window.postMessage(msg, '*');
+      window.__center = (sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      };
+      window.__button = (text) => {
+        const b = [...document.querySelectorAll('header button')].find((x) => x.textContent.trim() === text);
+        if (!b) return null;
+        const r = b.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      };
+      window.__aside = () => document.querySelector('aside')?.innerText ?? '';
+      window.__gl = () => !!document.querySelector('canvas')?.getContext('webgl2');
+    </script>
+    <script src="./view3d.js"></script>
+  </body>
+</html>

@@ -6,6 +6,7 @@ import { buildIndex, resolvePart, splitPiece, splitTerminal } from "./model.ts";
 import { conductors, numberedWires } from "./conductors.ts";
 import { isGenerated } from "./generated.ts";
 import { checkLayout, unmounted } from "./backpanel.ts";
+import { checkDepth } from "./scene3d.ts";
 import { DEFAULT_COLS, sheetKind, SYMBOLS } from "./symbols.ts";
 import type { Problem, Project } from "./types.ts";
 
@@ -79,7 +80,7 @@ export function check(p: Project): Problem[] {
       continue;
     }
     if (sh.kind === "layout") {
-      out.push(...checkLayout(p, s, ix));
+      out.push(...checkLayout(p, s, ix), ...checkDepth(p, s, ix));
       if (sh.place?.length) add("warning", file, "sheet-layout", `a layout sheet mounts devices ("mount"); its "place" list is ignored`, `"place"`);
       continue;
     }

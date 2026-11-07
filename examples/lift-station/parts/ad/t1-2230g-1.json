@@ -3,5 +3,6 @@
   "catalog": "T1-2230G-1",
   "desc": "Wire duct, slotted, 60 mm wide × 80 mm tall, grey, 2 m",
   "source": "https://www.automationdirect.com/pn/T1-2230G-1",
-  "stick_mm": 2000
+  "stick_mm": 2000,
+  "section_mm": [60, 80]
 }

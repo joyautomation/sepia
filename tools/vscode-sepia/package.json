@@ -43,13 +43,17 @@
         "title": "sepia: Check Project"
       },
       {
+        "command": "sepia.view3d",
+        "title": "sepia: Show Panel in 3D"
+      },
+      {
         "command": "sepia.print",
         "title": "sepia: Print Drawing Set to PDF"
       }
     ]
   },
   "scripts": {
-    "build": "tsc -p . && vite build",
+    "build": "tsc -p . && vite build && vite build --config vite.3d.config.mts",
     "watch": "vite build --watch",
     "test": "node --experimental-strip-types --test src/core/*.test.ts",
     "check": "svelte-check --tsconfig ./webview/tsconfig.json",
@@ -60,10 +64,12 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.2.0",
     "@types/node": "^22.20.4",
+    "@types/three": "^0.186.0",
     "@types/vscode": "^1.82.0",
     "@vscode/test-electron": "^3.1.0",
     "svelte": "^5.56.4",
     "svelte-check": "^4.7.6",
+    "three": "^0.186.1",
     "typescript": "^6.0.3",
     "vite": "^8.1.4"
   }

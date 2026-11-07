@@ -27,7 +27,7 @@ export async function run(): Promise<void> {
   console.log("activated");
 
   const cmds = await vscode.commands.getCommands(true);
-  for (const c of ["sepia.print", "sepia.check"]) if (!cmds.includes(c)) throw new Error(`command ${c} isn't registered`);
+  for (const c of ["sepia.print", "sepia.check", "sepia.view3d"]) if (!cmds.includes(c)) throw new Error(`command ${c} isn't registered`);
   console.log("ok: commands registered");
 
   // Problems: the SCCR check on sepia.json, before any sheet is open.
@@ -57,9 +57,30 @@ export async function run(): Promise<void> {
   await until("diagnostic cleared", () => (!codes("panel.json").includes("wire-numbering") ? true : undefined));
   console.log("ok: cleared after undoing the edit");
 
+  // The depth checks reach Problems: the A/C's side fit on the layout sheet.
+  await until("side-fit diagnostic", () => codes("sheets/13-layout.sheet.json").includes("side-fit"));
+  console.log("ok: side-fit diagnostic on the layout sheet");
+
+  // The 3D view opens beside it, once however often it's asked for.
+  const webviews = () =>
+    vscode.window.tabGroups.all.flatMap((g) => g.tabs).filter((t) => t.input instanceof vscode.TabInputWebview && t.input.viewType.endsWith("sepia.view3d"));
+  await vscode.commands.executeCommand("sepia.view3d", ws, "13-layout");
+  await until("3D tab", () => (webviews().length === 1 ? true : undefined));
+  await vscode.commands.executeCommand("sepia.view3d", ws, "13-layout");
+  await new Promise((r) => setTimeout(r, 500));
+  if (webviews().length !== 1) throw new Error(`expected one 3D view, got ${webviews().length}`);
+  console.log(`ok: 3D view opened (${webviews()[0].label})`);
+
   if (shot) {
-    await vscode.commands.executeCommand("vscode.openWith", sheet, "sepia.sheetEditor");
-    await vscode.commands.executeCommand("workbench.action.closeOtherEditors");
+    // SEPIA_E2E_SHOT_VIEW=3d: the layout sheet with its 3D view beside it.
+    if (process.env.SEPIA_E2E_SHOT_VIEW === "3d") {
+      await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+      await vscode.commands.executeCommand("vscode.openWith", vscode.Uri.file(path.join(ws, "sheets", "13-layout.sheet.json")), "sepia.sheetEditor");
+      await vscode.commands.executeCommand("sepia.view3d", ws, "13-layout");
+    } else {
+      await vscode.commands.executeCommand("vscode.openWith", sheet, "sepia.sheetEditor");
+      await vscode.commands.executeCommand("workbench.action.closeOtherEditors");
+    }
     await new Promise((r) => setTimeout(r, 2500));
     fs.writeFileSync(path.join(shot, "ready"), "");
     await until("screenshot", () => (fs.existsSync(path.join(shot, "done")) ? true : undefined), 60000);

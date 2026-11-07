@@ -74,6 +74,10 @@ export class SheetEditorProvider implements vscode.CustomTextEditorProvider {
         void this.reveal(path.join(live.root, msg.file), msg.find);
         return;
       }
+      if (msg?.type === "view3d" && live) {
+        void vscode.commands.executeCommand("sepia.view3d", live.root, sheetName);
+        return;
+      }
       if (msg?.type === "print" && live) {
         void vscode.commands.executeCommand("sepia.print", live.root);
         return;
