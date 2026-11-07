@@ -17,5 +17,6 @@
     "dc24": { "desc": "+24 VDC", "color": "blue", "awg": 18 },
     "dc0": { "desc": "0 VDC common", "color": "white/blue", "awg": 18 },
     "is24": { "desc": "Intrinsically safe", "color": "light blue", "awg": 18 }
-  }
+  },
+  "notes": ["An example panel for the Joy Automation library. The parts are real; the panel is virtual and not for construction.", "The wet well is Class I, Division 1 (NFPA 820). The floats and the level transmitter are intrinsically safe through ISR1 and ISB1; their wiring is light blue and kept apart from other circuits.", "Engineering assumptions and their arithmetic are in parts.md."]
 }

@@ -6,11 +6,13 @@ says which line and column each piece sits on. Wires, wire numbers,
 cross-references, line descriptions and the title block are all computed
 from that data.
 
-Two sheet kinds are drawn: **ladder** (rungs between two rails) and
-**power** (three-phase branches hanging off a bus). The example,
-`examples/lift-station`, is the whole lift-station panel on nine sheets:
-power, 120 VAC and 24 VDC distribution, both pumps' control, inputs,
-outputs and analog.
+Two sheet kinds are placed by hand: **ladder** (rungs between two rails)
+and **power** (three-phase branches hanging off a bus). Four are generated
+from the data: **cover**, **bom**, **wires** and **terminals**. The
+example, `examples/lift-station`, is the whole lift-station panel: a cover,
+nine schematics (power, 120 VAC and 24 VDC distribution, both pumps'
+control, inputs, outputs, analog), the bill of materials, the wire list and
+the terminal plan. That's 16 pages.
 
 ## Try it
 
@@ -57,9 +59,16 @@ JSON. The left panel lists all nine sheets.
 6. **Problems panel:** the SCCR error is real. 150 kVA at 2 %Z gives
    9.0 kA available, and the GH15ET contactors are only rated 5 kA. That's
    the PNL-P02 lesson.
-7. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
+7. **Numbering:** in `sepia.json`, change `"numbering"` to
+   `{ "default": "from-to", "field": "from-to" }`. Every wire number on
+   the drawings turns into the far terminal at each end, which is what the
+   sleeves say. The wire list, terminal plan and cover note follow.
+   `"default": "line"` puts it back. Field conductors follow `"field"`.
+8. **Generated pages:** open the BOM, wire list or terminal plan. Rename a
+   part's catalog number or add a wire in `panel.json` and they redraw.
+9. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
    writes every sheet to one PDF. It's the same drawing as on screen.
-8. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
+10. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
    mouse wheel zooms, and dragging the background pans.
 
 ### Revisions from git tags
@@ -121,8 +130,7 @@ SCCR takes the lowest rating of any device, assemblies included.
   it could ship quickly. It ports cleanly.
 - Symbols are built in (`src/core/sheetDraw.ts`). Project symbols as JSON
   primitives come next.
-- No cover sheet, BOM or wire list pages yet, no panel layout or 3D, and no
-  network sheet. Parts carry `bom` lists so the BOM can be generated next.
+- No panel layout or 3D yet, and no network sheet.
 - Grounding conductors aren't modelled (the SPD's ground, the bonded X2 of
   the transformer, the ground bar).
 - A few parts in the example have terminal names by function where the
@@ -130,8 +138,8 @@ SCCR takes the lowest rating of any device, assemblies included.
   breakers, the flow meter). Their part files say so in `notes`.
 - PLC input commons aren't modelled, so input boxes don't connect to the
   0 V rail. That's intended for now.
-- From-to numbering for field wires isn't checked yet (there are no field
-  wires in the example).
+- The wire list follows `panel.json`'s pull order exactly; nothing
+  suggests a better order yet.
 - The git revision is read on every refresh (three `git` calls). If typing
   in `panel.json` feels laggy, this is the first thing to cache.
 

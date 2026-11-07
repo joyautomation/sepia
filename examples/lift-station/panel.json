@@ -1,5 +1,7 @@
 {
   "devices": [
+    { "tag": "ENC1", "part": "asm/enclosure", "desc": "Enclosure and backpanel" },
+    { "tag": "GB1", "part": "saginaw/sce-gb10", "desc": "Ground bar" },
     { "tag": "MTS", "part": "eaton/dt363urk", "desc": "Manual transfer switch, utility / generator", "field": true },
     { "tag": "Q1", "part": "asm/main-disconnect", "desc": "Main disconnect", "rating": "70 A J" },
     { "tag": "SPD1", "part": "mersen/stxr480y05n", "desc": "Surge protective device" },
@@ -139,7 +141,7 @@
     { "no": "107H4", "class": "pwr480", "run": ["FU10:T2", "T1:H4"] },
     { "no": "107X1", "class": "ctl120", "run": ["T1:X1", "FU12:1"] },
     { "no": "1", "class": "ctl120", "run": ["FU12:2", "CB1:1", "CB2:1", "CB3:1", "CB4:1", "FU13:1", "CB6:1", "CB7:1", "CB8:1"] },
-    { "no": "2", "class": "neu120", "run": ["T1:X2", "LT1:N", "REC1:N", "HTR1:N", "PS1:N", "AC1:N", "TB1:2", "FIT-101:N", "M101A:A2", "M101B:A2", "M201A:A2", "M201B:A2"] },
+    { "no": "2", "class": "neu120", "run": ["T1:X2", "LT1:N", "REC1:N", "HTR1:N", "PS1:N", "AC1:N", "M101A:A2", "M101B:A2", "M201A:A2", "M201B:A2", "TB1:2", "FIT-101:N"] },
     { "no": "201", "class": "ctl120", "run": ["CB1:2", "DS1:COM"] },
     { "no": "201A", "class": "ctl120", "run": ["DS1:NO", "LT1:L"] },
     { "no": "203", "class": "ctl120", "run": ["CB2:2", "REC1:L"] },

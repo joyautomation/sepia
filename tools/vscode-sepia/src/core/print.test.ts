@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import type { Project, Revision } from "./types.ts";
 import { printName, printSet } from "./print.ts";
+import { setIndex } from "./sheetDraw.ts";
 
 // The loader is node-only and lives outside core; the example on disk is
 // the fixture. The revision is passed in, so git state doesn't matter.
@@ -16,7 +17,7 @@ test("a draft prints every sheet, stamped PRELIMINARY", () => {
   const p = loadProject(root, { rev: "A", issued: false, date: "2026-11-06", commit: "abc1234", history: [] });
   const pdf = latin1(printSet(p));
   assert.ok(pdf.startsWith("%PDF-1.4"));
-  assert.equal(pdf.match(/\/Type \/Page /g)?.length, p.sheets.length);
+  assert.equal(pdf.match(/\/Type \/Page /g)?.length, setIndex(p).pages.length);
   assert.ok(pdf.includes("PRELIMINARY"));
   assert.equal(printName(p), "LS1-E-A-draft.pdf");
 });

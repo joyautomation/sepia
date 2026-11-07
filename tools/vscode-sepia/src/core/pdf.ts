@@ -4,7 +4,7 @@
 // built-in Helvetica faces need no embedding, so there's no PDF library and
 // no browser: the same bytes come out of the CLI and the extension.
 
-import { INK, textLeft, type Prim, type Stroke } from "./draw.ts";
+import { INK, textStart, type Prim, type Stroke } from "./draw.ts";
 
 const K = 0.5522847498; // a quarter circle's cubic control distance
 /** Sheet units (1/100 in) to PDF points. */
@@ -22,7 +22,11 @@ function rgb(hex: string): string {
 }
 
 const WIN_ANSI: Record<string, number> = { "–": 0x96, "—": 0x97, "‘": 0x91, "’": 0x92, "“": 0x93, "”": 0x94, "•": 0x95, "…": 0x85 };
-const ASCII: Record<string, string> = { "→": "->", "←": "<-", "≥": ">=", "≤": "<=", "√": "sqrt" };
+// Characters the built-in fonts' WinAnsi encoding lacks, spelled the way a
+// drafter would.
+const ASCII: Record<string, string> = {
+  "→": "->", "←": "<-", "≥": ">=", "≤": "<=", "√": "sqrt", "−": "-", "φ": "ph", "Φ": "ph", "≈": "~", "Ω": "ohm", "Δ": "delta", "‑": "-",
+};
 
 /** A string as a PDF literal in WinAnsi: escaped, one byte per character. */
 export function pdfString(s: string): string {
@@ -85,7 +89,13 @@ export function primToPdf(p: Prim): string {
       return paint(p.fill, p.s, ops, p.d.some((s) => s[0] === "Z"));
     }
     case "text":
-      return `BT /${p.bold ? "F2" : "F1"} ${n(p.size)} Tf ${rgb(p.color ?? INK)} rg 1 0 0 -1 ${n(textLeft(p))} ${n(p.y)} Tm ${pdfString(p.text)} Tj ET`;
+    {
+      // y is down on the page, so upright text is the matrix 1 0 0 -1;
+      // reading upward along a vertical wire is 0 -1 -1 0.
+      const at = textStart(p);
+      const m = p.vertical ? "0 -1 -1 0" : "1 0 0 -1";
+      return `BT /${p.bold ? "F2" : "F1"} ${n(p.size)} Tf ${rgb(p.color ?? INK)} rg ${m} ${n(at.x)} ${n(at.y)} Tm ${pdfString(p.text)} Tj ET`;
+    }
   }
 }
 

@@ -2,26 +2,25 @@
   // One ladder sheet on paper. Everything drawn here is computed from the
   // project (core/ladder.ts); the only thing a gesture changes is where a
   // piece sits.
-  import type { Project, SheetFile } from "../src/core/types.ts";
   import { cellAt, cellCentre, SHEET, type LadderLayout } from "../src/core/ladder.ts";
-  import { INK, Pen, svgPath, textLeft, type Meta, type Prim } from "../src/core/draw.ts";
-  import { drawSheet, drawSymbol } from "../src/core/sheetDraw.ts";
+  import { INK, Pen, svgPath, textStart, type Meta, type Prim } from "../src/core/draw.ts";
+  import { drawSymbol } from "../src/core/sheetDraw.ts";
 
   type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
 
   let {
-    project,
     layout,
-    sheet,
+    prims,
     selected = $bindable(),
     drag,
     onpick,
     onmove,
     ondrop,
   }: {
-    project: Project;
-    layout: LadderLayout;
-    sheet: SheetFile;
+    /** Absent on a generated page: nothing to pick or drag. */
+    layout: LadderLayout | undefined;
+    /** The ink: exactly what `sepia print` writes for this page. */
+    prims: Prim[];
     selected: Sel;
     /** A piece being dragged (from the sheet or the unplaced list). */
     drag: { ref: string; symbol: string; n: number; text?: string; line: number; col: number; over: boolean } | null;
@@ -82,7 +81,7 @@
     if (drag) {
       const p = toSheet(e);
       const inside = p.x > SHEET.margin && p.x < SHEET.w - SHEET.margin && p.y > SHEET.margin && p.y < SHEET.h - SHEET.margin - SHEET.titleH;
-      onmove(inside ? cellAt(layout.frame, p.x, p.y) : null);
+      onmove(inside && layout ? cellAt(layout.frame, p.x, p.y) : null);
     }
   }
   function onpointerup(e: PointerEvent) {
@@ -95,13 +94,11 @@
     if (drag) ondrop();
   }
 
-  const f = $derived(layout.frame);
-  // The ink: exactly what `sepia print` writes (core/sheetDraw.ts).
-  const prims = $derived(drawSheet(project, sheet, layout));
+  const f = $derived(layout?.frame);
   const selWire = $derived.by(() => {
     const s = selected;
     if (s?.kind === "wire") return new Set([s.no]);
-    if (s?.kind === "piece") return new Set(layout.pieces.find((p) => p.ref === s.ref)?.ports.map((p) => p.wire).filter(Boolean) as string[]);
+    if (s?.kind === "piece" && layout) return new Set(layout.pieces.find((p) => p.ref === s.ref)?.ports.map((p) => p.wire).filter(Boolean) as string[]);
     return new Set<string>();
   });
   const isSel = (m: Meta | undefined) =>
@@ -126,7 +123,8 @@
     {:else if p.t === "path"}
       <path class={cls} d={svgPath(p.d)} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} />
     {:else}
-      <text class={cls} x={textLeft(p)} y={p.y} font-size={p.size} font-weight={p.bold ? "bold" : "normal"} fill={p.color ?? INK}>{p.text}</text>
+      {@const at = textStart(p)}
+      <text class={cls} x={at.x} y={at.y} transform={p.vertical ? `rotate(-90 ${at.x} ${at.y})` : undefined} font-size={p.size} font-weight={p.bold ? "bold" : "normal"} fill={p.color ?? INK}>{p.text}</text>
     {/if}
   {/each}
 {/snippet}
@@ -145,7 +143,7 @@
     <rect class="paper" x="0" y="0" width={SHEET.w} height={SHEET.h} />
 
     <!-- drop target -->
-    {#if drag?.over}
+    {#if drag?.over && f}
       {@const c = cellCentre(f, drag.line, drag.col)}
       <rect class="drop" x={c.x - f.colW / 2} y={c.y - f.rowH / 2} width={f.colW} height={f.rowH} />
     {/if}
@@ -153,6 +151,7 @@
     <g class="ink" stroke-linecap="round" stroke-linejoin="round">{@render ink(prims)}</g>
 
     <!-- interaction: invisible hit areas from the layout, not the ink -->
+    {#if layout && f}
     {#each layout.segs as s}
       <line class="hit" x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} data-hit
         role="button" tabindex="-1" aria-label="wire {s.wire}"
@@ -172,9 +171,10 @@
         onpointerdown={(e) => { if (e.button !== 0) return; svg!.setPointerCapture(e.pointerId); onpick(pc.ref); }}
       />
     {/each}
+    {/if}
 
     <!-- the piece in flight -->
-    {#if drag?.over}
+    {#if drag?.over && f}
       {@const c = cellCentre(f, drag.line, drag.col)}
       <g class="ink ghost" transform="translate({c.x},{c.y})" stroke-linecap="round">{@render ink(ghost)}</g>
     {/if}

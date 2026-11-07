@@ -3,6 +3,8 @@
 // Problems panel, the CLI prints them (JSON for agents).
 
 import { buildIndex, resolvePart, splitPiece, splitTerminal } from "./model.ts";
+import { conductors, numberedWires } from "./conductors.ts";
+import { isGenerated } from "./generated.ts";
 import { DEFAULT_COLS, sheetKind, SYMBOLS } from "./symbols.ts";
 import type { Problem, Project } from "./types.ts";
 
@@ -71,6 +73,10 @@ export function check(p: Project): Problem[] {
   for (const s of p.sheets) {
     const file = `sheets/${s.file}`;
     const sh = s.sheet;
+    if (isGenerated(sh.kind)) {
+      if (sh.place?.length) add("warning", file, "sheet-generated", `a ${sh.kind} sheet is generated from the data; its "place" list is ignored`, `"place"`);
+      continue;
+    }
     const kind = sheetKind(sh.kind);
     if (!kind) add("info", file, "sheet-kind", `sheet kind "${sh.kind}" isn't drawn yet`);
     const cols = sh.cols ?? DEFAULT_COLS[kind ?? "ladder"];
@@ -118,6 +124,22 @@ export function check(p: Project): Problem[] {
   return out;
 }
 
+/** The panel's SCCR is its weakest rated device's (a simplification of
+ * UL 508A SB4, which also lets current-limiting fuses raise it). Field
+ * devices aren't in the panel. */
+export function lowestSccr(p: Project): { ka: number; tags: string[]; part: string } | undefined {
+  let lowest: { ka: number; tags: string[]; part: string } | undefined;
+  for (const d of p.panel.devices ?? []) {
+    if (d.field) continue;
+    const sccr = (resolvePart(p.parts, d.part)?.ratings as { sccr?: { ka?: number | null }[] } | undefined)?.sccr;
+    const ka = Math.min(...(sccr ?? []).map((r) => r.ka ?? Infinity));
+    if (!isFinite(ka)) continue;
+    if (!lowest || ka < lowest.ka) lowest = { ka, tags: [d.tag], part: d.part };
+    else if (ka === lowest.ka) lowest.tags.push(d.tag);
+  }
+  return lowest;
+}
+
 /** Panel SCCR against the available fault current (parts.md assumption 1).
  * The fault current comes from the service transformer in sepia.json; the
  * cable between it and the panel only lowers it, so ignoring it is
@@ -126,14 +148,7 @@ function checkSccr(p: Project, add: (s: Problem["severity"], f: string, c: strin
   const svc = p.sepia.service as { volts?: number; transformerKva?: number; transformerZPct?: number } | undefined;
   if (!svc?.volts || !svc.transformerKva || !svc.transformerZPct) return;
   const availKa = (svc.transformerKva * 1000) / (Math.sqrt(3) * svc.volts) / (svc.transformerZPct / 100) / 1000;
-  let lowest: { ka: number; tags: string[]; part: string } | undefined;
-  for (const d of p.panel.devices ?? []) {
-    const sccr = (resolvePart(p.parts, d.part)?.ratings as { sccr?: { ka?: number | null }[] } | undefined)?.sccr;
-    const ka = Math.min(...(sccr ?? []).map((r) => r.ka ?? Infinity));
-    if (!isFinite(ka)) continue;
-    if (!lowest || ka < lowest.ka) lowest = { ka, tags: [d.tag], part: d.part };
-    else if (ka === lowest.ka) lowest.tags.push(d.tag);
-  }
+  const lowest = lowestSccr(p);
   if (!lowest) return;
   const math = `${svc.transformerKva} kVA ÷ (√3 × ${svc.volts} V) ÷ ${svc.transformerZPct} %Z = ${availKa.toFixed(1)} kA`;
   if (lowest.ka < availKa)
@@ -147,10 +162,11 @@ function checkSccr(p: Project, add: (s: Problem["severity"], f: string, c: strin
  * branch number (103L1, 103T1). Rails and names that don't start with a
  * number (+24, 0V, L1) are left alone. */
 function checkLineNumbers(p: Project, ix: ReturnType<typeof buildIndex>, add: (s: Problem["severity"], f: string, c: string, m: string, find?: string) => void) {
-  if ((p.sepia.numbering?.default ?? "line") !== "line") return;
+  // Only wires with a line-numbered conductor print their number.
+  const numbered = numberedWires(conductors(p, ix));
   const rails = new Set(p.sheets.flatMap((s) => s.sheet.rails ?? []));
   for (const w of p.panel.wires ?? []) {
-    if (!w?.no || rails.has(w.no)) continue;
+    if (!w?.no || rails.has(w.no) || !numbered.has(w.no)) continue;
     const m = /^(\d+)(?:[A-Z]|[A-Z]\d)?$/.exec(w.no);
     if (!m) continue;
     const lines = (w.run ?? []).flatMap((t) => {

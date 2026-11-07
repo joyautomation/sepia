@@ -14,7 +14,9 @@ export type Seg =
   | ["C", number, number, number, number, number, number]
   | ["Z"];
 
-export type TextStyle = { size: number; anchor?: "start" | "middle" | "end"; bold?: boolean; color?: string };
+/** `vertical` text reads bottom to top, along a vertical wire; its anchor
+ * is along that direction (start is the bottom). */
+export type TextStyle = { size: number; anchor?: "start" | "middle" | "end"; bold?: boolean; color?: string; vertical?: boolean };
 
 /** What a primitive belongs to, so the editor can hit-test and highlight. */
 export type Meta = { piece?: string; wire?: string };
@@ -120,4 +122,11 @@ export function svgPath(d: Seg[]): string {
 export function textLeft(p: { x: number; text: string; size: number; anchor?: string; bold?: boolean }): number {
   const w = textWidth(p.text, p.size, p.bold);
   return p.anchor === "middle" ? p.x - w / 2 : p.anchor === "end" ? p.x - w : p.x;
+}
+
+/** The baseline's start point after anchoring, for any text. */
+export function textStart(p: { x: number; y: number; text: string; size: number; anchor?: string; bold?: boolean; vertical?: boolean }): { x: number; y: number } {
+  if (!p.vertical) return { x: textLeft(p), y: p.y };
+  const w = textWidth(p.text, p.size, p.bold);
+  return { x: p.x, y: p.anchor === "middle" ? p.y + w / 2 : p.anchor === "end" ? p.y + w : p.y };
 }

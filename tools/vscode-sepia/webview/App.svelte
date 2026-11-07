@@ -2,7 +2,8 @@
   import { onMount } from "svelte";
   import type { Problem, Project } from "../src/core/types.ts";
   import { buildIndex, otherEnds } from "../src/core/model.ts";
-  import { layoutSheet } from "../src/core/ladder.ts";
+  import { conductors } from "../src/core/conductors.ts";
+  import { renderSheet, setIndex } from "../src/core/sheetDraw.ts";
   import { sheetKind, SYMBOLS } from "../src/core/symbols.ts";
   import { vscode } from "./vscodeApi.ts";
   import Sheet from "./Sheet.svelte";
@@ -54,12 +55,26 @@
     const sheets = project.sheets.map((s, i) => (i === sheetIdx ? { ...s, sheet: { ...s.sheet, place } } : s));
     const p = { ...project, sheets };
     const ix = buildIndex(p);
-    return { p, ix, sheet: sheets[sheetIdx], layout: layoutSheet(p, sheets[sheetIdx], ix) };
+    const r = renderSheet(p, sheets[sheetIdx], ix);
+    return { p, ix, sheet: sheets[sheetIdx], layout: r.layout, pages: r.pages, set: setIndex(p, ix) };
+  });
+  /** Which page of a multi-page (generated) sheet is showing. */
+  let page = $state(0);
+  $effect(() => {
+    void sheetName;
+    page = 0;
+  });
+  const pageNo = $derived(view ? Math.min(page, view.pages.length - 1) : 0);
+  const sheetLabel = $derived.by(() => {
+    if (!view) return "";
+    const sp = view.set.pages.filter((x) => x.sheet.name === view.sheet.name)[pageNo];
+    return sp?.number === undefined ? "cover" : `sheet ${sp.number} of ${view.set.count}`;
   });
 
   const notDrawn = $derived.by(() => {
     if (!view) return [];
     const out: { ref: string; tag: string; name: string; symbol: string; desc: string; wired: boolean }[] = [];
+    if (!view.layout) return [];
     const kind = sheetKind(view.sheet.sheet.kind) ?? "ladder";
     for (const [ref, info] of view.ix.pieces) {
       if (view.ix.placed.has(ref) || !SYMBOLS[info.def.symbol]?.kinds.includes(kind)) continue;
@@ -79,7 +94,7 @@
 
   function pick(ref: string) {
     selected = { kind: "piece", ref };
-    const pc = view?.layout.pieces.find((p) => p.ref === ref);
+    const pc = view?.layout?.pieces.find((p) => p.ref === ref);
     if (!pc) return;
     drag = { ref, symbol: pc.info?.def.symbol ?? "", n: pc.info?.def.terminals.length ?? 2, text: pc.info?.def.text, line: pc.line, col: pc.col, over: false, fromList: false, start: { line: pc.line, col: pc.col } };
   }
@@ -121,7 +136,7 @@
   }
   function onkeydown(e: KeyboardEvent) {
     if ((e.target as HTMLElement).closest("input,textarea")) return;
-    if ((e.key === "Delete" || e.key === "Backspace") && selected?.kind === "piece" && view?.layout.pieces.some((p) => p.ref === (selected as { ref: string }).ref)) {
+    if ((e.key === "Delete" || e.key === "Backspace") && selected?.kind === "piece" && view?.layout?.pieces.some((p) => p.ref === (selected as { ref: string }).ref)) {
       unplace(selected.ref);
       e.preventDefault();
     } else if (e.key === "Escape") {
@@ -155,7 +170,14 @@
   <div class="app" class:dragging={!!drag} class:bare>
     <header>
       <span class="title">{view.sheet.sheet.title ?? sheetName}</span>
-      <span class="muted">{project.sepia.drawing} · sheet {sheetIdx + 1} of {project.sheets.length} · {view.layout.frame.kind === "power" ? "branches" : "lines"} {view.sheet.sheet.lines?.join("–")}</span>
+      <span class="muted">{project.sepia.drawing} · {sheetLabel}{#if view.layout} · {view.layout.frame.kind === "power" ? "branches" : "lines"} {view.sheet.sheet.lines?.join("–")}{:else} · generated from the data{/if}</span>
+      {#if view.pages.length > 1}
+        <span class="pager">
+          <button disabled={pageNo === 0} onclick={() => (page = pageNo - 1)} title="Previous page">‹</button>
+          page {pageNo + 1} of {view.pages.length}
+          <button disabled={pageNo >= view.pages.length - 1} onclick={() => (page = pageNo + 1)} title="Next page">›</button>
+        </span>
+      {/if}
       <span class="spacer"></span>
       <button onclick={toggleBare} title="Show or hide the side panels (P)">{bare ? "Show panels" : "Hide panels"}</button>
       <button onclick={() => sheetView?.fit()} title="Fit (F)">Fit</button>
@@ -168,9 +190,10 @@
       <h3>Sheets</h3>
       {#each project.sheets as s, i}
         <button class="row" class:current={i === sheetIdx} onclick={() => vscode.postMessage({ type: "openSheet", file: s.file })}>
-          <span class="num">{i + 1}</span>{s.sheet.title ?? s.name}
+          <span class="num">{view.set.pages.find((sp) => sp.sheet.name === s.name)?.number ?? "–"}</span>{s.sheet.title ?? s.name}
         </button>
       {/each}
+      {#if view.layout}
       <h3>Not drawn <span class="muted">drag onto a {view.layout.frame.kind === "power" ? "branch" : "line"}</span></h3>
       {#each notDrawn.filter((n) => n.wired) as n (n.ref)}
         <div class="row draggable" role="button" tabindex="-1" onpointerdown={(e) => pickFromList(e, n.ref, n.symbol)} title={n.desc}>
@@ -185,14 +208,14 @@
           <b>{n.tag}</b>.{n.name} <span class="muted">{n.symbol.split("/")[1]}</span>
         </div>
       {/each}
+      {/if}
     </aside>
 
     <main>
       <Sheet
         bind:this={sheetView}
-        project={view.p}
         layout={view.layout}
-        sheet={view.sheet}
+        prims={view.pages[pageNo] ?? []}
         bind:selected
         {drag}
         onpick={pick}
@@ -226,7 +249,7 @@
         <div class="actions">
           <button onclick={() => reveal("panel.json", `"tag": "${selPiece!.device.tag}"`)}>Device in panel.json</button>
           <button onclick={() => reveal(`parts/${selPiece!.device.part}.json`)}>Part file</button>
-          {#if view.layout.pieces.some((p) => p.ref === selPiece!.ref)}
+          {#if view.layout?.pieces.some((p) => p.ref === selPiece!.ref)}
             <button onclick={() => unplace(selPiece!.ref)}>Remove from sheet</button>
           {/if}
         </div>
@@ -242,6 +265,14 @@
           <tbody>
             {#each selWire.run as t, i}
               <tr><td class="num">{i + 1}</td><td class="mono">{t}</td><td class="muted">{whereDrawn(t)}</td></tr>
+            {/each}
+          </tbody>
+        </table>
+        <h4>Conductors and sleeves</h4>
+        <table>
+          <tbody>
+            {#each conductors(view.p, view.ix).filter((c) => c.wire.no === selWire!.no) as c}
+              <tr><td class="mono">{c.from}</td><td class="muted">{c.markFrom}</td><td class="mono">{c.to}</td><td class="muted">{c.markTo}</td></tr>
             {/each}
           </tbody>
         </table>

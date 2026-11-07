@@ -131,6 +131,18 @@ formats matters more than hand-typing.)
   A number is assigned once and then stored, because it's printed on a
   sleeve and can't change silently. The scheme decides what a *new* wire
   gets, and renumbering is an explicit command.
+- **Built 11-07: the scheme applies per conductor.** A wire is one
+  potential; its run, in pull order, is a chain of conductors, each cut and
+  sleeved on its own. A conductor with an end on a field device follows
+  `numbering.field`, and every other follows `numbering.default`. So
+  `{ "default": "line", "field": "from-to" }` numbers the panel by line and
+  marks field cables from-to, and `{ "default": "from-to" }` marks every
+  conductor with its far end, which helps when troubleshooting inside the
+  panel (James, 11-07). The drawings print the far end beside each
+  conductor's end (up the wire on a power sheet). The wire list shows both
+  sleeves of every conductor either way. The wire number stays in
+  `panel.json` as the potential's name, and the line-numbering check only
+  applies to wires that print it.
 
 ### 3.2 Sheets: like a mimic, without the pipes
 
@@ -187,8 +199,15 @@ autoroutes a pipe between two ports.
   302 prints the lines of its contacts, wherever they're placed.
 - If a sheet leaves a piece out, it isn't drawn. If two sheets place the same
   piece, the core flags it.
-- Generated sheets (cover, backpanel layout, BOM, wire list, terminal
-  plan) only say which kind they are. Their content comes from the data.
+- Generated sheets only say which kind they are: `{ "title": "Wire list",
+  "kind": "wires" }`. Their content comes from the data. Built 11-07:
+  `cover` (sheet index, general notes from the service, SCCR and numbering
+  plus `sepia.json` `notes`, wire classes), `bom` (assemblies expanded,
+  totalled by part, field devices apart), `wires` (every conductor and both
+  of its sleeves) and `terminals` (each strip: inside and outside ends). A
+  long one runs to several pages. Pages are numbered across the set, and
+  the cover isn't numbered, so the first schematic is sheet 1 and its lines
+  can start at 100.
 
 **Power sheets (built 11-07) are the ladder turned 90°.** A line is a
 vertical branch and `col` counts positions down it (six by default), so

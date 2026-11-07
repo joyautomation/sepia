@@ -89,3 +89,5 @@ rect.hit { stroke: none; }
 header button { white-space: nowrap; flex: none; }
 header .title, header .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 header .title { flex: none; }
+.pager { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.pager button { padding: 0 8px; }

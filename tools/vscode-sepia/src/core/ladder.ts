@@ -16,11 +16,13 @@
 // Tracks are stacked by phase, L1 on top.
 
 import { buildIndex, crossRefs, type Index, type PieceInfo } from "./model.ts";
+import { conductors, numberedWires, type Conductor } from "./conductors.ts";
 import { DEFAULT_COLS, POLE, POWER_PORT_Y, sheetKind, SYMBOLS, type SheetKind } from "./symbols.ts";
 import type { Project, SheetFile } from "./types.ts";
 
-/** ANSI B landscape, in hundredths of an inch. */
-export const SHEET = { w: 1700, h: 1100, margin: 50, titleH: 150 };
+import { SHEET } from "./paper.ts";
+import { setIndex } from "./generated.ts";
+export { SHEET };
 
 export type Frame = {
   kind: SheetKind;
@@ -54,7 +56,7 @@ export type PlacedPiece = {
 
 export type Seg = { x1: number; y1: number; x2: number; y2: number; wire: string };
 export type Dot = { x: number; y: number; wire: string };
-export type Label = { x: number; y: number; text: string; wire: string; size?: number; anchor?: "start" | "middle" | "end" };
+export type Label = { x: number; y: number; text: string; wire: string; size?: number; anchor?: "start" | "middle" | "end"; vertical?: boolean };
 /** A wire leaving the sheet: an arrow and where it goes. */
 export type Stub = { x: number; y: number; dir: "left" | "right" | "up" | "down"; wire: string; to: string; /** Phase, to stagger neighbouring labels. */ k?: number };
 
@@ -139,7 +141,7 @@ function portsByWire(pieces: PlacedPiece[]): Map<string, PortPos[]> {
  * or just the lines when there are many ("/300 /400"). */
 function awayText(p: Project, sheet: SheetFile, ix: Index, wire: string, here: Set<string>, compact = false): string {
   // A wire that is another sheet's rail: name the sheet, not every tap on it.
-  const railOn = p.sheets.flatMap((s, i) => (s !== sheet && s.name !== sheet.name && s.sheet.rails?.includes(wire) ? [i + 1] : []));
+  const railOn = p.sheets.flatMap((s) => (s.name !== sheet.name && s.sheet.rails?.includes(wire) ? [numberOf(p, ix, s.name)] : []));
   if (railOn.length) return `${railOn.length > 1 ? "SHEETS" : "SHEET"} ${railOn.join(", ")}`;
   const away = (ix.wires.get(wire)?.run ?? []).filter((t) => !here.has(t));
   const at = away.map((t) => {
@@ -150,6 +152,18 @@ function awayText(p: Project, sheet: SheetFile, ix: Index, wire: string, here: S
   const lines = [...new Set(at.map((a) => a.line).filter((l) => l !== undefined))].sort((a, b) => a! - b!);
   const shown = lines.slice(0, 4).map((l) => `/${l}`).join(" ");
   return (shown || `${at.length} ends`) + (lines.length > 4 ? " …" : "");
+}
+
+/** A sheet's number in the set, as its title block prints it. */
+const numbers = new WeakMap<Index, Map<string, number | undefined>>();
+function numberOf(p: Project, ix: Index, name: string): number | string {
+  let m = numbers.get(ix);
+  if (!m) {
+    m = new Map();
+    for (const sp of setIndex(p, ix).pages) if (sp.page === 1) m.set(sp.sheet.name, sp.number);
+    numbers.set(ix, m);
+  }
+  return m.get(name) ?? name;
 }
 
 const r2 = (v: number) => Math.round(v * 100) / 100;
@@ -187,6 +201,8 @@ export function layoutLadder(p: Project, sheet: SheetFile, ix: Index = buildInde
   const rails = sheet.sheet.rails ?? ["", ""];
   const pieces = placePieces(sheet, f, ix);
   const byWire = portsByWire(pieces);
+  const cs = conductors(p, ix);
+  const numbered = numberedWires(cs);
 
   const segs: Seg[] = [];
   const labels: Label[] = [];
@@ -242,7 +258,9 @@ export function layoutLadder(p: Project, sheet: SheetFile, ix: Index = buildInde
     const first = spans[0];
     const runs = segs.filter((sg) => sg.wire === wire && r2(sg.y1) === first.y && r2(sg.y2) === first.y);
     const longest = runs.sort((a, b) => Math.abs(b.x2 - b.x1) - Math.abs(a.x2 - a.x1))[0];
-    if (longest) labels.push({ x: (longest.x1 + longest.x2) / 2, y: first.y - 6, text: wire, wire });
+    if (!numbered.has(wire)) {
+      // from-to only: the ends are labelled instead (fromToLabels).
+    } else if (longest) labels.push({ x: (longest.x1 + longest.x2) / 2, y: first.y - 6, text: wire, wire });
     else {
       const pt = rows.get(first.y)![0];
       const left = pt.x < (pieces.find((pc) => pc.ref === pt.piece)?.cx ?? pt.x);
@@ -288,7 +306,47 @@ export function layoutLadder(p: Project, sheet: SheetFile, ix: Index = buildInde
   }
 
   const allPorts = pieces.flatMap((pc) => pc.ports);
+  labels.push(...fromToLabels(cs, pieces, false));
   return { frame: f, pieces, segs, dots: junctions(segs, allPorts), labels, stubs, notes, rails };
+}
+
+/** For each from-to conductor with an end on this sheet: the far end's
+ * address beside that end's port, which is what its sleeve says. On a
+ * ladder it sits over the wire, on the side away from the piece; on a power
+ * sheet it reads up the wire, left of a line terminal and right of a load
+ * terminal so the two ends of a short drop don't collide. */
+function fromToLabels(cs: Conductor[], pieces: PlacedPiece[], power: boolean): Label[] {
+  const portsOf = new Map<string, PortPos[]>();
+  for (const pc of pieces) for (const pt of pc.ports) portsOf.set(pt.term, [...(portsOf.get(pt.term) ?? []), pt]);
+  const pcOf = new Map(pieces.map((pc) => [pc.ref, pc]));
+  const at = new Map<PortPos, { mark: string; wire: string }[]>();
+  for (const c of cs) {
+    if (c.scheme !== "from-to") continue;
+    for (const [end, far, mark] of [[c.from, c.to, c.markFrom], [c.to, c.from, c.markTo]] as const) {
+      const ps = portsOf.get(end);
+      if (!ps) continue;
+      // A terminal block has two ports for one terminal: use the side
+      // facing the far end.
+      const f = portsOf.get(far)?.[0];
+      const pt = f ? ps.reduce((a, b) => (Math.abs(b.x - f.x) < Math.abs(a.x - f.x) ? b : a)) : ps[ps.length - 1];
+      at.set(pt, [...(at.get(pt) ?? []), { mark, wire: c.wire.no }]);
+    }
+  }
+  const out: Label[] = [];
+  const SIZE = 6;
+  for (const [pt, marks] of at) {
+    const pc = pcOf.get(pt.piece)!;
+    marks.forEach(({ mark, wire }, i) => {
+      if (power) {
+        const up = pt.y < pc.cy;
+        out.push({ x: up ? pt.x - 2 - i * 7 : pt.x + 2 + SIZE + i * 7, y: up ? pt.y - 4 : pt.y + 4, text: mark, wire, size: SIZE, anchor: up ? "start" : "end", vertical: true });
+      } else {
+        const left = pt.x < pc.cx;
+        out.push({ x: pt.x + (left ? -3 : 3), y: pt.y - 3 - i * 8, text: mark, wire, size: SIZE, anchor: left ? "end" : "start" });
+      }
+    });
+  }
+  return out;
 }
 
 /** Pieces whose device description is worth writing beside their line. */
@@ -301,6 +359,8 @@ export function layoutPower(p: Project, sheet: SheetFile, ix: Index = buildIndex
   const f = frameFor(sheet);
   const pieces = placePieces(sheet, f, ix);
   const byWire = portsByWire(pieces);
+  const cs = conductors(p, ix);
+  const numbered = numberedWires(cs);
   const segs: Seg[] = [];
   const labels: Label[] = [];
   const stubs: Stub[] = [];
@@ -325,7 +385,7 @@ export function layoutPower(p: Project, sheet: SheetFile, ix: Index = buildIndex
       const sorted = [...ports].sort((a, b) => a.y - b.y);
       for (let i = 1; i < sorted.length; i++) segs.push({ x1: sorted[i - 1].x, y1: sorted[i - 1].y, x2: sorted[i].x, y2: sorted[i].y, wire });
       const a = sorted[0], b = sorted[sorted.length - 1];
-      labels.push({ x: a.x + 2, y: (a.y + b.y) / 2 + 3, text: wire, wire, size: 7, anchor: "start" });
+      if (numbered.has(wire)) labels.push({ x: a.x + 2, y: (a.y + b.y) / 2 + 3, text: wire, wire, size: 7, anchor: "start" });
     } else if (ports.length > 1) {
       routed.push({
         wire,
@@ -353,7 +413,7 @@ export function layoutPower(p: Project, sheet: SheetFile, ix: Index = buildIndex
     // The number sits on the track, clear of the first drop.
     const xs = [...new Set(r.ports.map((pt) => r2(pt.x)))].sort((a, b) => a - b);
     const lx = xs.length > 1 ? (xs[0] + xs[1]) / 2 : xs[0] + 4;
-    labels.push({ x: lx, y: ty - 2.5, text: r.wire, wire: r.wire, size: 7, anchor: "middle" });
+    if (numbered.has(r.wire)) labels.push({ x: lx, y: ty - 2.5, text: r.wire, wire: r.wire, size: 7, anchor: "middle" });
   }
 
   // Ends of a wire that aren't on this sheet: an arrow out of the lowest
@@ -365,7 +425,7 @@ export function layoutPower(p: Project, sheet: SheetFile, ix: Index = buildIndex
     const loads = ports.filter((pt) => pt.y > pcOf.get(pt.piece)!.cy).sort((a, b) => b.y - a.y);
     const end = loads[0] ?? [...ports].sort((a, b) => a.y - b.y)[0];
     stubs.push({ x: end.x, y: end.y, dir: loads[0] ? "down" : "up", wire, to, k: poleOf(end) });
-    if (ports.length === 1) labels.push({ x: end.x + 2, y: end.y + (loads[0] ? 14 : -8), text: wire, wire, size: 7, anchor: "start" });
+    if (ports.length === 1 && numbered.has(wire)) labels.push({ x: end.x + 2, y: end.y + (loads[0] ? 14 : -8), text: wire, wire, size: 7, anchor: "start" });
   }
 
   // Under each branch: what it feeds. The sheet can say; otherwise the
@@ -380,6 +440,7 @@ export function layoutPower(p: Project, sheet: SheetFile, ix: Index = buildIndex
   }
 
   const allPorts = pieces.flatMap((pc) => pc.ports);
+  labels.push(...fromToLabels(cs, pieces, true));
   return { frame: f, pieces, segs, dots: junctions(segs, allPorts), labels, stubs, notes, rails: [] };
 }
 

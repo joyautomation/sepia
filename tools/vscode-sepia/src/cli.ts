@@ -6,6 +6,7 @@
 //
 // `check` is the one an agent runs after every edit.
 
+import { setIndex } from "./core/sheetDraw.ts";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { check } from "./core/check.ts";
@@ -36,7 +37,8 @@ function main(argv: string[]): number {
     const out = path.resolve(outArg ?? path.join(root, printName(project)));
     fs.writeFileSync(out, printSet(project));
     const r = project.revision;
-    process.stdout.write(`${out}: ${project.sheets.length} sheets, rev ${r.rev}${r.issued ? "" : " draft (PRELIMINARY)"}\n`);
+    const pages = setIndex(project).pages.length;
+    process.stdout.write(`${out}: ${pages} pages from ${project.sheets.length} sheets, rev ${r.rev}${r.issued ? "" : " draft (PRELIMINARY)"}\n`);
     return 0;
   }
 

@@ -3,7 +3,10 @@
 // and the PDF both draw exactly this.
 
 import { INK, Pen, RED, textWidth, type Prim, type Seg } from "./draw.ts";
-import { SHEET, type LadderLayout } from "./ladder.ts";
+import { layoutSheet, SHEET, type LadderLayout } from "./ladder.ts";
+import { buildIndex, type Index } from "./model.ts";
+import { generatedPages, isGenerated, setIndex as setIndexOf, type SetPage } from "./generated.ts";
+import { lowestSccr } from "./check.ts";
 import { IO_BOX, IO_PORT, POWER_PORT_Y, SYMBOLS, type Port } from "./symbols.ts";
 import type { Project, SheetFile } from "./types.ts";
 
@@ -228,7 +231,7 @@ function drawPower(pen: Pen, symbol: string, ports: Port[], o: SymbolOpts): void
   }
 }
 
-function drawFrame(pen: Pen, p: Project, title: string, index: number, count: number): void {
+function drawFrame(pen: Pen, p: Project, title: string, sheetNo: string): void {
   const s = p.sepia;
   const rev = p.revision;
   const y0 = H - M - TH;
@@ -299,7 +302,7 @@ function drawFrame(pen: Pen, p: Project, title: string, index: number, count: nu
   pen.text(x[3] + 10, y0 + 46, s.drawing ?? "", { size: 22, bold: true });
   pen.line(x[3], y0 + 60, x[4], y0 + 60, THIN);
   pen.text(x[3] + 10, y0 + 76, "SHEET", head);
-  pen.text(x[3] + 10, y0 + 100, `${index} OF ${count}`, body);
+  pen.text(x[3] + 10, y0 + 100, sheetNo, body);
   pen.line(x[3] + 120, y0 + 60, x[3] + 120, y0 + 112, THIN);
   pen.text(x[3] + 130, y0 + 76, "REV", head);
   pen.text(x[3] + 130, y0 + 100, rev.issued ? rev.rev : `${rev.rev} DRAFT`, body);
@@ -372,7 +375,7 @@ function drawLadder(pen: Pen, p: Project, L: LadderLayout): void {
   for (const s of L.segs) pen.tagged({ wire: s.wire }, () => pen.line(s.x1, s.y1, s.x2, s.y2, THIN));
   for (const d of L.dots) pen.tagged({ wire: d.wire }, () => pen.circle(d.x, d.y, 3.5, { fill: INK }));
   for (const l of L.labels)
-    pen.tagged({ wire: l.wire }, () => pen.text(l.x, l.y, l.text, { size: l.size ?? 10, anchor: l.anchor ?? "middle" }));
+    pen.tagged({ wire: l.wire }, () => pen.text(l.x, l.y, l.text, { size: l.size ?? 10, anchor: l.anchor ?? "middle", vertical: l.vertical }));
   for (const st of L.stubs) pen.tagged({ wire: st.wire }, () => drawStub(pen, st));
 
   for (const pc of L.pieces) {
@@ -449,10 +452,34 @@ function wrap(text: string, size: number, width: number): string[] {
   return out;
 }
 
-export function drawSheet(p: Project, sheet: SheetFile, layout: LadderLayout): Prim[] {
+export function setIndex(p: Project, ix: Index = buildIndex(p)) {
+  return setIndexOf(p, ix);
+}
+
+export type Rendered = { pages: Prim[][]; layout?: LadderLayout };
+
+/** A sheet as drawn: one page for a ladder or power sheet (with the layout
+ * the editor hit-tests against), one or more for a generated sheet. */
+export function renderSheet(p: Project, sheet: SheetFile, ix: Index = buildIndex(p)): Rendered {
+  const set = setIndex(p, ix);
+  const mine = set.pages.filter((sp) => sp.sheet.name === sheet.name);
+  const no = (sp: SetPage | undefined) => (sp?.number === undefined ? "COVER" : `${sp.number} OF ${set.count}`);
+  if (isGenerated(sheet.sheet.kind)) {
+    const low = lowestSccr(p);
+    const sccr = low ? `${low.ka} kA, set by ${low.tags.join(", ")}` : "";
+    const draws = generatedPages(p, sheet, ix, set.pages, sccr);
+    return {
+      pages: draws.map((draw, i) => {
+        const pen = new Pen();
+        drawFrame(pen, p, mine[i]?.title ?? sheet.name, no(mine[i]));
+        draw(pen);
+        return pen.items;
+      }),
+    };
+  }
+  const layout = layoutSheet(p, sheet, ix);
   const pen = new Pen();
-  const index = p.sheets.findIndex((s) => s.name === sheet.name) + 1;
-  drawFrame(pen, p, sheet.sheet.title ?? sheet.name, index, p.sheets.length);
+  drawFrame(pen, p, sheet.sheet.title ?? sheet.name, no(mine[0]));
   drawLadder(pen, p, layout);
-  return pen.items;
+  return { pages: [pen.items], layout };
 }
