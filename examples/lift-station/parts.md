@@ -3,7 +3,9 @@
 2026-11-06. Claude, from research agents and Joy's own catalog
 (`randd/catalog`). **For James to review as a PE before any of it becomes
 `panel.json` or part files.** The design decisions behind it are in
-`content/library/plant.md` (D1–D8). Prices and stock were read on 11-06.
+`content/library/plant.md` (D1–D8). **The panel is virtual** (a 3D build, not
+a purchase), so price, stock and lead time don't matter. What matters is
+that each part is real, with published dimensions, ratings and CAD.
 
 Confidence column: **verified** means the catalog number and ratings were
 read on the maker's or distributor's own page or cut sheet. **partly** means
@@ -11,7 +13,7 @@ it came from a catalog PDF or a third-party listing only. Nothing here is
 guessed. Where a number couldn't be verified, the cell is blank.
 
 Vendor rule: AutomationDirect (AD) where it has a suitable UL product,
-because viewers can price it and download free CAD. Specialists for
+because it publishes ratings openly and offers free CAD downloads. Specialists for
 hazardous-area and pump-protection parts. Joy's catalog for the controller,
 I/O and network.
 
@@ -55,8 +57,7 @@ contactor (M…B). Coils are 120 VAC.
 
 ## 2 · Controller, I/O and network
 
-From Joy's catalog (`randd/catalog/items.json`, `io.json`), prices verified
-there 2026-09/10.
+From Joy's catalog (`randd/catalog/items.json`, `io.json`).
 
 | Function | Tag | Make | Catalog no. | Key ratings | Why |
 |---|---|---|---|---|---|
@@ -97,7 +98,7 @@ Floats and the level transmitter go through intrinsically safe devices
 | Heater with thermostat | HTR1 | Stego (AD) | 027009-01 | 550 W 120 VAC (≈4.6 A); thermostat 0–60 °C; UL Recognized | — | no | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosure_thermal_management_-a-_lights/heaters/027009-01) | verified |
 | Panel light | LT1 | Stego (AD) | 122040-00 | 120 VAC 16 W, own switch and receptacle | 693 long | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosure_thermal_management_-a-_lights/enclosure_lighting/122040-00) | verified |
 | Door switch for LT1 | DS1 | Stego (AD) | 013500-00 | SPDT 10 A 250 VAC; no UL listing shown | — | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosures_-a-_racks/enclosure_parts_-a-_accessories/door_switches/013500-00) | partly |
-| GFCI receptacle | REC1 | Gladiator (AD) | GR-REC2-GFCI | 15 A 125 VAC, DIN/panel; needs 20 A protection; **backordered to 2027-01-22** | — | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/wire_-a-_cable_termination/wiring_devices/din_rail_receptacles/gr-rec2-gfci) | verified |
+| GFCI receptacle | REC1 | Gladiator (AD) | GR-REC2-GFCI | 15 A 125 VAC, DIN/panel; needs 20 A protection | — | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/wire_-a-_cable_termination/wiring_devices/din_rail_receptacles/gr-rec2-gfci) | verified |
 | Ground bar | GB1 | Saginaw (AD) | SCE-GB10 | 4 in, 10 × #10-32, tinned copper; no UL listing shown | 102 long | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosures_-a-_racks/enclosure_parts_-a-_accessories/grounding_-a-_isolation/sce-gb10) | verified |
 | Terminal, feed-through 2.5 mm² | TB | AD DINnector | DN-T12-A (100/pk) | 600 V 20 A, SCCR 100 kA | 5 wide | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/terminal_blocks/dinnector_din-rail_terminal_blocks/single-level_feed-through_terminal_blocks/dn-t12-a) | verified |
 | Terminal accessories | TB acc. | AD DINnector | DN-EC1210 end cover; DN-2J2Y / DN-3J2Y / DN-24J2Y jumpers; DN-EB35-A end bracket | — | — | ? | [spec](https://cdn.automationdirect.com/static/specs/dinfeedthru.pdf) | verified |
@@ -182,5 +183,4 @@ From the control, door and enclosure research:
     no UL file shown. Accept or substitute. The panel light has no
     external-switch input, so the door switch breaks its 120 V feed (or use
     the motion-sensor model 122140-00).
-16. **GFCI receptacle backordered** to January 2027.
-17. **The beacon on the enclosure top** needs a listed Type 4X hub.
+16. **The beacon on the enclosure top** needs a listed Type 4X hub.
