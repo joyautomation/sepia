@@ -6,5 +6,6 @@
   "notes": "Wired to close when the door opens. Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "sw": { "symbol": "nema/contact-no", "terminals": ["COM", "NO"] }
-  }
+  },
+  "mount": { "backpanel": true, "size_mm": [64, 86, 30] }
 }

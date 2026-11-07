@@ -8,5 +8,5 @@
     "left": { "symbol": "nema/selector-no", "terminals": ["3", "4"], "position": 0 },
     "right": { "symbol": "nema/selector-no", "terminals": ["13", "14"], "position": 2 }
   },
-  "mount": { "door": "30.5mm" }
+  "mount": { "door": "30.5mm", "size_mm": [44, 57, 55] }
 }

@@ -8,5 +8,5 @@
       { "ka": 100 }
     ]
   },
-  "mount": { "din": "35mm", "width_mm": 5 }
+  "mount": { "din": "35mm", "size_mm": [5, 47, 36] }
 }

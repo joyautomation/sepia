@@ -1,8 +1,8 @@
 {
   "desc": "Enclosure with its backpanel (no swing-out dead front: parts.md assumption 11)",
-  "base": "hammond/en4sd603612sswh",
+  "base": "hammond/en4sd723612ssr",
   "bom": [
-    { "part": "hammond/en4sd603612sswh" },
-    { "part": "hammond/ep6036" }
+    { "part": "hammond/en4sd723612ssr" },
+    { "part": "hammond/ep7236" }
   ]
 }

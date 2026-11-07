@@ -1,15 +1,22 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Problem, Project } from "../src/core/types.ts";
+  import type { Mount, Problem, Project } from "../src/core/types.ts";
   import { buildIndex, otherEnds } from "../src/core/model.ts";
   import { conductors } from "../src/core/conductors.ts";
-  import { renderSheet, setIndex } from "../src/core/sheetDraw.ts";
+  import { drawSymbol, renderSheet, setIndex } from "../src/core/sheetDraw.ts";
+  import { cellAt, cellCentre } from "../src/core/ladder.ts";
+  import { bodyOf, snapMount, type Body } from "../src/core/backpanel.ts";
+  import { Pen } from "../src/core/draw.ts";
   import { sheetKind, SYMBOLS } from "../src/core/symbols.ts";
   import { vscode } from "./vscodeApi.ts";
+  import type { Preview, Sel } from "./preview.ts";
   import Sheet from "./Sheet.svelte";
 
-  type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
-  type Drag = { ref: string; symbol: string; n: number; text?: string; line: number; col: number; over: boolean; fromList: boolean; start?: { line: number; col: number } };
+  /** A piece onto a ladder or power sheet's grid. */
+  type PieceDrag = { mode: "piece"; ref: string; symbol: string; n: number; text?: string; fromList: boolean; start?: { line: number; col: number }; cell: { line: number; col: number } | null };
+  /** A device onto a layout sheet's rails, backpanel or door. */
+  type MountDrag = { mode: "mount"; tag: string; body: Body; fromList: boolean; start?: Mount; target: ReturnType<typeof snapMount> };
+  type Drag = PieceDrag | MountDrag;
 
   let project = $state<Project | null>(null);
   let sheetName = $state("");
@@ -17,8 +24,9 @@
   let noProject = $state("");
   let selected = $state<Sel>(null);
   let drag = $state<Drag | null>(null);
-  /** Optimistic placements until the host's next project message. */
+  /** Optimistic placements and mounts until the host's next project message. */
   let pending: Record<string, { line: number; col: number } | null> = $state({});
+  let pendingMount: Record<string, Mount | null> = $state({});
   let sheetView: Sheet | undefined = $state();
   /** Side panels hidden (P), remembered across reloads of this panel. */
   let bare = $state(!!(vscode.getState?.() as { bare?: boolean } | undefined)?.bare);
@@ -36,6 +44,7 @@
         sheetName = m.sheet;
         problems = m.problems;
         pending = {};
+        pendingMount = {};
         noProject = "";
       } else if (m?.type === "noProject") noProject = m.file;
     };
@@ -52,11 +61,14 @@
     const sf = project.sheets[sheetIdx];
     let place = (sf.sheet.place ?? []).map((p) => (p.piece in pending ? (pending[p.piece] ? { ...p, ...pending[p.piece]! } : null) : p)).filter((p) => !!p);
     for (const [ref, at] of Object.entries(pending)) if (at && !place.some((p) => p.piece === ref)) place.push({ piece: ref, ...at });
-    const sheets = project.sheets.map((s, i) => (i === sheetIdx ? { ...s, sheet: { ...s.sheet, place } } : s));
+    let mount = (sf.sheet.mount ?? []).map((m) => (m.device in pendingMount ? pendingMount[m.device] : m)).filter((m) => !!m);
+    for (const [tag, m] of Object.entries(pendingMount)) if (m && !mount.some((x) => x.device === tag)) mount.push(m);
+    const sheet = { ...sf.sheet, place, ...(sf.sheet.kind === "layout" ? { mount } : {}) };
+    const sheets = project.sheets.map((s, i) => (i === sheetIdx ? { ...s, sheet } : s));
     const p = { ...project, sheets };
     const ix = buildIndex(p);
     const r = renderSheet(p, sheets[sheetIdx], ix);
-    return { p, ix, sheet: sheets[sheetIdx], layout: r.layout, pages: r.pages, set: setIndex(p, ix) };
+    return { p, ix, sheet: sheets[sheetIdx], layout: r.layout, panel: r.panel, pages: r.pages, set: setIndex(p, ix) };
   });
   /** Which page of a multi-page (generated) sheet is showing. */
   let page = $state(0);
@@ -71,10 +83,10 @@
     return sp?.number === undefined ? "cover" : `sheet ${sp.number} of ${view.set.count}`;
   });
 
+  type Listed = { ref: string; tag: string; name: string; symbol: string; desc: string; wired: boolean };
   const notDrawn = $derived.by(() => {
-    if (!view) return [];
-    const out: { ref: string; tag: string; name: string; symbol: string; desc: string; wired: boolean }[] = [];
-    if (!view.layout) return [];
+    const out: Listed[] = [];
+    if (!view?.layout) return out;
     const kind = sheetKind(view.sheet.sheet.kind) ?? "ladder";
     for (const [ref, info] of view.ix.pieces) {
       if (view.ix.placed.has(ref) || !SYMBOLS[info.def.symbol]?.kinds.includes(kind)) continue;
@@ -85,6 +97,14 @@
     }
     return out;
   });
+  /** Layout: devices in the enclosure that no layout sheet mounts yet. */
+  const notMounted = $derived.by(() => {
+    if (!view?.panel) return [];
+    const mounted = new Set(view.p.sheets.filter((s) => s.sheet.kind === "layout").flatMap((s) => (s.sheet.mount ?? []).map((m) => m.device)));
+    return [...view.ix.devices.values()]
+      .filter((d) => !d.field && !mounted.has(d.tag) && d.tag !== view.sheet.sheet.enclosure)
+      .map((d) => ({ tag: d.tag, desc: d.desc ?? "", body: bodyOf(view.p, view.ix, d.tag)! }));
+  });
 
   const counts = $derived({
     error: problems.filter((p) => p.severity === "error").length,
@@ -93,52 +113,104 @@
   });
 
   function pick(ref: string) {
+    if (view?.panel) {
+      const it = view.panel.items.find((i) => i.tag === ref);
+      selected = { kind: "device", tag: ref };
+      if (!it || !["din", "backpanel", "door"].includes(it.kind ?? "")) return;
+      const start = view.sheet.sheet.mount?.find((m) => m.device === ref);
+      drag = { mode: "mount", tag: ref, body: it, fromList: false, start, target: null };
+      return;
+    }
     selected = { kind: "piece", ref };
     const pc = view?.layout?.pieces.find((p) => p.ref === ref);
     if (!pc) return;
-    drag = { ref, symbol: pc.info?.def.symbol ?? "", n: pc.info?.def.terminals.length ?? 2, text: pc.info?.def.text, line: pc.line, col: pc.col, over: false, fromList: false, start: { line: pc.line, col: pc.col } };
+    drag = { mode: "piece", ref, symbol: pc.info?.def.symbol ?? "", n: pc.info?.def.terminals.length ?? 2, text: pc.info?.def.text, fromList: false, start: { line: pc.line, col: pc.col }, cell: null };
   }
   function pickFromList(e: PointerEvent, ref: string, symbol: string) {
     e.preventDefault();
     selected = { kind: "piece", ref };
     const def = view?.ix.pieces.get(ref)?.def;
-    drag = { ref, symbol, n: def?.terminals.length ?? 2, text: def?.text, line: 0, col: 0, over: false, fromList: true };
+    drag = { mode: "piece", ref, symbol, n: def?.terminals.length ?? 2, text: def?.text, fromList: true, cell: null };
   }
-  function move(cell: { line: number; col: number } | null) {
-    if (!drag) return;
-    if (!cell) {
-      drag.over = false;
-      return;
+  function pickToMount(e: PointerEvent, tag: string, body: Body) {
+    e.preventDefault();
+    selected = { kind: "device", tag };
+    drag = { mode: "mount", tag, body, fromList: true, target: null };
+  }
+  function move(pt: { x: number; y: number } | null) {
+    if (!drag || !view) return;
+    if (drag.mode === "piece") {
+      const cell = pt && view.layout ? cellAt(view.layout.frame, pt.x, pt.y) : null;
+      drag.cell = cell && (drag.fromList || cell.line !== drag.start?.line || cell.col !== drag.start?.col) ? cell : null;
+    } else {
+      const t = pt && view.panel ? snapMount(view.panel, drag.tag, drag.body, pt.x, pt.y) : null;
+      const s = drag.start;
+      drag.target = t && (drag.fromList || t.on !== s?.on || t.x !== s?.x || (t.y !== undefined && t.y !== s?.y)) ? t : null;
     }
-    drag.line = cell.line;
-    drag.col = cell.col;
-    drag.over = drag.fromList || cell.line !== drag.start?.line || cell.col !== drag.start?.col;
   }
+  // What the drag would do now, drawn by the sheet.
+  const preview = $derived.by((): Preview | null => {
+    if (!drag || !view) return null;
+    if (drag.mode === "piece") {
+      const f = view.layout?.frame;
+      if (!drag.cell || !f) return null;
+      const c = cellCentre(f, drag.cell.line, drag.cell.col);
+      const pen = new Pen();
+      drawSymbol(pen, drag.symbol, drag.n, { text: drag.text });
+      return { rect: { x: c.x - f.colW / 2, y: c.y - f.rowH / 2, w: f.colW, h: f.rowH }, at: c, items: pen.items };
+    }
+    const t = drag.target;
+    if (!t) return null;
+    const pen = new Pen();
+    pen.rect(0, 0, t.rect.w, t.rect.h, { fill: "#ffffff", s: { width: 1 } });
+    pen.text(t.rect.w / 2, t.rect.h / 2 + 2, drag.tag, { size: 6.5, anchor: "middle" });
+    return { rect: t.rect, at: { x: t.rect.x, y: t.rect.y }, items: pen.items };
+  });
   function drop() {
     const d = drag;
     drag = null;
-    if (!d?.over) return;
-    const taken = view?.sheet.sheet.place?.find((p) => p.piece !== d.ref && p.line === d.line && p.col === d.col);
-    if (taken) {
-      vscode.postMessage({ type: "warn", text: `line ${d.line}, column ${d.col} already has ${taken.piece}` });
+    if (!d) return;
+    if (d.mode === "mount") {
+      const t = d.target;
+      if (!t) return;
+      const m: Mount = { device: d.tag, ...(t.on !== undefined ? { on: t.on } : {}), x: t.x, ...(t.y !== undefined ? { y: t.y } : {}) };
+      pendingMount = { ...pendingMount, [d.tag]: m };
+      vscode.postMessage({ type: "op", op: { type: "mount", ...m } });
       return;
     }
-    pending = { ...pending, [d.ref]: { line: d.line, col: d.col } };
-    vscode.postMessage({ type: "op", op: { type: d.fromList ? "place" : "move", piece: d.ref, line: d.line, col: d.col } });
+    const c = d.cell;
+    if (!c) return;
+    const taken = view?.sheet.sheet.place?.find((p) => p.piece !== d.ref && p.line === c.line && p.col === c.col);
+    if (taken) {
+      vscode.postMessage({ type: "warn", text: `line ${c.line}, column ${c.col} already has ${taken.piece}` });
+      return;
+    }
+    pending = { ...pending, [d.ref]: { line: c.line, col: c.col } };
+    vscode.postMessage({ type: "op", op: { type: d.fromList ? "place" : "move", piece: d.ref, line: c.line, col: c.col } });
   }
   function unplace(ref: string) {
     pending = { ...pending, [ref]: null };
     selected = null;
     vscode.postMessage({ type: "op", op: { type: "unplace", piece: ref } });
   }
+  function unmount(tag: string) {
+    pendingMount = { ...pendingMount, [tag]: null };
+    selected = null;
+    vscode.postMessage({ type: "op", op: { type: "unmount", device: tag } });
+  }
   function reveal(file: string, find?: string) {
     vscode.postMessage({ type: "reveal", file, find });
   }
   function onkeydown(e: KeyboardEvent) {
     if ((e.target as HTMLElement).closest("input,textarea")) return;
-    if ((e.key === "Delete" || e.key === "Backspace") && selected?.kind === "piece" && view?.layout?.pieces.some((p) => p.ref === (selected as { ref: string }).ref)) {
-      unplace(selected.ref);
-      e.preventDefault();
+    if (e.key === "Delete" || e.key === "Backspace") {
+      if (selected?.kind === "piece" && view?.layout?.pieces.some((p) => p.ref === (selected as { ref: string }).ref)) {
+        unplace(selected.ref);
+        e.preventDefault();
+      } else if (selected?.kind === "device" && view?.panel?.items.some((i) => i.tag === (selected as { tag: string }).tag)) {
+        unmount(selected.tag);
+        e.preventDefault();
+      }
     } else if (e.key === "Escape") {
       selected = null;
       drag = null;
@@ -149,6 +221,26 @@
   // Properties of the selection.
   const selPiece = $derived(selected?.kind === "piece" && view ? view.ix.pieces.get(selected.ref) : undefined);
   const selWire = $derived(selected?.kind === "wire" && view ? view.ix.wires.get(selected.no) : undefined);
+  const selDevice = $derived.by(() => {
+    if (selected?.kind !== "device" || !view) return undefined;
+    const tag = selected.tag;
+    const dev = view.ix.devices.get(tag);
+    if (!dev) return undefined;
+    const item = view.panel?.items.find((i) => i.tag === tag);
+    const body = bodyOf(view.p, view.ix, tag);
+    const drawn = [...view.ix.pieces.values()]
+      .filter((pc) => pc.device.tag === tag && view.ix.placed.has(pc.ref))
+      .map((pc) => { const at = view.ix.placed.get(pc.ref)![0]; return `${pc.name}: ${at.sheet}, line ${at.line}`; });
+    return { dev, item, body, drawn };
+  });
+  function whereMounted(it: { on?: string; x: number; y: number; face: string }): string {
+    const r = view?.panel?.rails.find((x) => x.id === it.on);
+    if (r) return `rail ${r.id}, ${Math.round(it.x)} mm from the backpanel's left edge`;
+    if (it.on === "door") return `door, ${Math.round(it.x)} × ${Math.round(it.y)} mm from its top-left`;
+    if (it.on && ["top", "left", "right"].includes(it.on)) return `outside, on the ${it.on}`;
+    if (it.on) return `on ${it.on}`;
+    return `backpanel, ${Math.round(it.x)} × ${Math.round(it.y)} mm from its top-left`;
+  }
   function whereDrawn(term: string): string {
     if (!view) return "";
     const t = view.ix.terminals.get(term);
@@ -170,7 +262,7 @@
   <div class="app" class:dragging={!!drag} class:bare>
     <header>
       <span class="title">{view.sheet.sheet.title ?? sheetName}</span>
-      <span class="muted">{project.sepia.drawing} · {sheetLabel}{#if view.layout} · {view.layout.frame.kind === "power" ? "branches" : "lines"} {view.sheet.sheet.lines?.join("–")}{:else} · generated from the data{/if}</span>
+      <span class="muted">{project.sepia.drawing} · {sheetLabel}{#if view.layout} · {view.layout.frame.kind === "power" ? "branches" : "lines"} {view.sheet.sheet.lines?.join("–")}{:else if view.panel} · scale 1:{view.panel.scale}{:else} · generated from the data{/if}</span>
       {#if view.pages.length > 1}
         <span class="pager">
           <button disabled={pageNo === 0} onclick={() => (page = pageNo - 1)} title="Previous page">‹</button>
@@ -209,15 +301,28 @@
         </div>
       {/each}
       {/if}
+      {#if view.panel}
+      <h3>Not mounted <span class="muted">drag onto a rail, the backpanel or the door</span></h3>
+      {#each notMounted as n (n.tag)}
+        <div class="row draggable" role="button" tabindex="-1" onpointerdown={(e) => pickToMount(e, n.tag, n.body)} title={n.desc}>
+          <b>{n.tag}</b> <span class="muted">{n.body.kind ?? "no mount"}{n.body.sized ? "" : ", no size"}</span>
+        </div>
+      {:else}
+        <p class="muted">Every device in the enclosure is mounted.</p>
+      {/each}
+      {/if}
     </aside>
 
     <main>
       <Sheet
         bind:this={sheetView}
         layout={view.layout}
+        panel={view.panel}
         prims={view.pages[pageNo] ?? []}
         bind:selected
-        {drag}
+        dragging={!!drag}
+        lifted={drag ? (drag.mode === "piece" ? drag.ref : drag.tag) : undefined}
+        {preview}
         onpick={pick}
         onmove={move}
         ondrop={drop}
@@ -254,6 +359,26 @@
           {/if}
         </div>
         {#if selPiece.part?.notes}<p class="note">{selPiece.part.notes}</p>{/if}
+      {:else if selDevice}
+        {@const d = selDevice}
+        <h3>{d.dev.tag}</h3>
+        <p>{d.dev.desc}</p>
+        <dl>
+          <dt>Part</dt><dd>{d.body?.part?.manufacturer} {d.body?.part?.catalog ?? d.dev.part}</dd>
+          <dt>Mounts</dt><dd>{d.body?.kind ?? "not said"}{#if d.body?.part?.mount?.door} ({d.body.part.mount.door} cutout){/if}</dd>
+          <dt>Size</dt><dd>{#if d.body?.sized}{d.body.w} × {d.body.h} × {d.body.d} mm{:else}<span class="muted">none in the part file</span>{/if}</dd>
+          <dt>Where</dt><dd>{d.item ? whereMounted(d.item) : "not mounted"}</dd>
+        </dl>
+        {#if d.drawn.length}
+          <h4>Drawn</h4>
+          <ul class="plain">{#each d.drawn as w}<li>{w}</li>{/each}</ul>
+        {/if}
+        <div class="actions">
+          <button onclick={() => reveal("panel.json", `"tag": "${d.dev.tag}"`)}>Device in panel.json</button>
+          <button onclick={() => reveal(`parts/${d.dev.part}.json`)}>Part file</button>
+          {#if d.item}<button onclick={() => unmount(d.dev.tag)}>Take off the layout</button>{/if}
+        </div>
+        {#if d.body?.part?.notes}<p class="note">{d.body.part.notes}</p>{/if}
       {:else if selWire}
         <h3>Wire {selWire.no}</h3>
         {#if selWire.class}
@@ -279,7 +404,11 @@
         <div class="actions"><button onclick={() => reveal("panel.json", `"no": "${selWire!.no}"`)}>Wire in panel.json</button></div>
       {:else}
         <h3>Nothing selected</h3>
+        {#if view.panel}
+        <p class="muted">Click a device. Drag one along its rail or onto another; parts screwed to the backpanel or the door move in 5 mm steps. The sheet file changes, panel.json never does.</p>
+        {:else}
         <p class="muted">Click a part or a wire. Drag a part to another line or column; the sheet file changes, panel.json never does.</p>
+        {/if}
         <p class="muted">Connections come from panel.json: edit it (or have your agent edit it) and this redraws.</p>
       {/if}
     </aside>

@@ -2,30 +2,40 @@
   // One ladder sheet on paper. Everything drawn here is computed from the
   // project (core/ladder.ts); the only thing a gesture changes is where a
   // piece sits.
-  import { cellAt, cellCentre, SHEET, type LadderLayout } from "../src/core/ladder.ts";
-  import { INK, Pen, svgPath, textStart, type Meta, type Prim } from "../src/core/draw.ts";
-  import { drawSymbol } from "../src/core/sheetDraw.ts";
+  import { SHEET, type LadderLayout } from "../src/core/ladder.ts";
+  import { INK, svgPath, textStart, type Meta, type Prim } from "../src/core/draw.ts";
+  import { toSheet as itemRect, type PanelLayout } from "../src/core/backpanel.ts";
 
-  type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
+  import type { Preview, Sel } from "./preview.ts";
 
   let {
     layout,
+    panel,
     prims,
     selected = $bindable(),
-    drag,
+    dragging,
+    lifted,
+    preview,
     onpick,
     onmove,
     ondrop,
   }: {
-    /** Absent on a generated page: nothing to pick or drag. */
-    layout: LadderLayout | undefined;
+    /** A ladder or power sheet's layout: pieces and wires to pick. */
+    layout?: LadderLayout;
+    /** A panel layout sheet's: devices to pick. Neither on a generated page. */
+    panel?: PanelLayout;
     /** The ink: exactly what `sepia print` writes for this page. */
     prims: Prim[];
     selected: Sel;
-    /** A piece being dragged (from the sheet or the unplaced list). */
-    drag: { ref: string; symbol: string; n: number; text?: string; line: number; col: number; over: boolean } | null;
+    /** A drag is under way (from the sheet or a list in the side panel). */
+    dragging: boolean;
+    /** The piece or device being dragged, drawn faded where it was. */
+    lifted?: string;
+    preview: Preview | null;
+    /** A piece ref (ladder, power) or a device tag (layout). */
     onpick: (ref: string) => void;
-    onmove: (pt: { line: number; col: number } | null) => void;
+    /** Where the pointer is on the paper, in sheet units; null off it. */
+    onmove: (pt: { x: number; y: number } | null) => void;
     ondrop: () => void;
   } = $props();
 
@@ -78,10 +88,10 @@
       vb = { ...pan.vb, x: pan.vb.x - (e.clientX - pan.x) * s, y: pan.vb.y - (e.clientY - pan.y) * s };
       return;
     }
-    if (drag) {
+    if (dragging) {
       const p = toSheet(e);
       const inside = p.x > SHEET.margin && p.x < SHEET.w - SHEET.margin && p.y > SHEET.margin && p.y < SHEET.h - SHEET.margin - SHEET.titleH;
-      onmove(inside && layout ? cellAt(layout.frame, p.x, p.y) : null);
+      onmove(inside ? p : null);
     }
   }
   function onpointerup(e: PointerEvent) {
@@ -91,7 +101,7 @@
       if (!moved) selected = null;
       return;
     }
-    if (drag) ondrop();
+    if (dragging) ondrop();
   }
 
   const f = $derived(layout?.frame);
@@ -102,18 +112,15 @@
     return new Set<string>();
   });
   const isSel = (m: Meta | undefined) =>
-    !!m && ((m.wire !== undefined && selWire.has(m.wire)) || (selected?.kind === "piece" && m.piece === selected.ref));
-  const ghost = $derived.by(() => {
-    if (!drag) return [];
-    const pen = new Pen();
-    drawSymbol(pen, drag.symbol, drag.n, { text: drag.text });
-    return pen.items;
-  });
+    !!m &&
+    ((m.wire !== undefined && selWire.has(m.wire)) ||
+      (selected?.kind === "piece" && m.piece === selected.ref) ||
+      (selected?.kind === "device" && m.device === selected.tag));
 </script>
 
 {#snippet ink(items: Prim[])}
   {#each items as p}
-    {@const cls = { sel: isSel(p.meta), lifted: !!drag?.over && p.meta?.piece === drag.ref }}
+    {@const cls = { sel: isSel(p.meta), lifted: !!preview && !!lifted && (p.meta?.piece === lifted || p.meta?.device === lifted) }}
     {#if p.t === "line"}
       <line class={cls} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.s.color ?? INK} stroke-width={p.s.width ?? 1} stroke-dasharray={p.s.dash?.join(" ")} />
     {:else if p.t === "rect"}
@@ -143,9 +150,8 @@
     <rect class="paper" x="0" y="0" width={SHEET.w} height={SHEET.h} />
 
     <!-- drop target -->
-    {#if drag?.over && f}
-      {@const c = cellCentre(f, drag.line, drag.col)}
-      <rect class="drop" x={c.x - f.colW / 2} y={c.y - f.rowH / 2} width={f.colW} height={f.rowH} />
+    {#if preview}
+      <rect class="drop" x={preview.rect.x} y={preview.rect.y} width={preview.rect.w} height={preview.rect.h} />
     {/if}
 
     <g class="ink" stroke-linecap="round" stroke-linejoin="round">{@render ink(prims)}</g>
@@ -172,11 +178,27 @@
       />
     {/each}
     {/if}
+    {#if panel}
+    {#each panel.items as it (it.tag)}
+      {@const r = itemRect(panel, it.face, it)}
+      <rect
+        class="hit piece"
+        x={r.x}
+        y={r.y}
+        width={Math.max(r.w, 4)}
+        height={Math.max(r.h, 4)}
+        data-hit
+        role="button"
+        tabindex="-1"
+        aria-label={it.tag}
+        onpointerdown={(e) => { if (e.button !== 0) return; svg!.setPointerCapture(e.pointerId); onpick(it.tag); }}
+      />
+    {/each}
+    {/if}
 
     <!-- the piece in flight -->
-    {#if drag?.over && f}
-      {@const c = cellCentre(f, drag.line, drag.col)}
-      <g class="ink ghost" transform="translate({c.x},{c.y})" stroke-linecap="round">{@render ink(ghost)}</g>
+    {#if preview}
+      <g class="ink ghost" transform="translate({preview.at.x},{preview.at.y})" stroke-linecap="round">{@render ink(preview.items)}</g>
     {/if}
   </svg>
 </div>

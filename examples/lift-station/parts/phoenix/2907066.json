@@ -7,5 +7,10 @@
     "in": { "symbol": "nema/box", "terminals": ["1.1", "1.2"], "text": "UPS IN" },
     "out": { "symbol": "nema/box", "terminals": ["2.1", "2.2"], "text": "UPS OUT" },
     "bat": { "symbol": "nema/box", "terminals": ["4.2", "4.1"], "text": "UPS BATTERY" }
+  },
+  "mount": {
+    "din": "35mm",
+    "size_mm": [35, 130, 125],
+    "clearance_mm": { "top": 50, "bottom": 50 }
   }
 }

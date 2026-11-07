@@ -2,5 +2,6 @@
   "manufacturer": "Eaton",
   "catalog": "HT8HFGV3",
   "desc": "30 mm pilot light operator, green, 24 VAC/DC",
-  "source": "https://cdn.automationdirect.com/static/specs/eaton30mmii.pdf"
+  "source": "https://cdn.automationdirect.com/static/specs/eaton30mmii.pdf",
+  "mount": { "door": "30.5mm", "size_mm": [44, 57, 70] }
 }

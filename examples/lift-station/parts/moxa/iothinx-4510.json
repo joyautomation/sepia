@@ -6,5 +6,6 @@
   "pieces": {
     "sys": { "symbol": "nema/box", "terminals": ["SP+", "SP-"], "text": "RIO SYSTEM" },
     "field": { "symbol": "nema/box", "terminals": ["FP+", "FP-"], "text": "RIO FIELD" }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [42.3, 99, 75] }
 }

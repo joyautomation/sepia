@@ -7,6 +7,7 @@ import { layoutSheet, SHEET, type LadderLayout } from "./ladder.ts";
 import { buildIndex, type Index } from "./model.ts";
 import { generatedPages, isGenerated, setIndex as setIndexOf, type SetPage } from "./generated.ts";
 import { lowestSccr } from "./check.ts";
+import { drawPanelLayout, panelLayout, type PanelLayout } from "./backpanel.ts";
 import { IO_BOX, IO_PORT, POWER_PORT_Y, SYMBOLS, type Port } from "./symbols.ts";
 import type { Project, SheetFile } from "./types.ts";
 
@@ -456,7 +457,7 @@ export function setIndex(p: Project, ix: Index = buildIndex(p)) {
   return setIndexOf(p, ix);
 }
 
-export type Rendered = { pages: Prim[][]; layout?: LadderLayout };
+export type Rendered = { pages: Prim[][]; layout?: LadderLayout; panel?: PanelLayout };
 
 /** A sheet as drawn: one page for a ladder or power sheet (with the layout
  * the editor hit-tests against), one or more for a generated sheet. */
@@ -476,6 +477,13 @@ export function renderSheet(p: Project, sheet: SheetFile, ix: Index = buildIndex
         return pen.items;
       }),
     };
+  }
+  if (sheet.sheet.kind === "layout") {
+    const panel = panelLayout(p, sheet, ix);
+    const pen = new Pen();
+    drawFrame(pen, p, sheet.sheet.title ?? sheet.name, no(mine[0]));
+    drawPanelLayout(pen, panel);
+    return { pages: [pen.items], panel };
   }
   const layout = layoutSheet(p, sheet, ix);
   const pen = new Pen();

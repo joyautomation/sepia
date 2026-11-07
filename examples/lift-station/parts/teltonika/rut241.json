@@ -5,5 +5,6 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "pwr": { "symbol": "nema/box", "terminals": ["+", "-"], "text": "CELL ROUTER" }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [83, 74, 40] }
 }

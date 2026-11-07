@@ -106,8 +106,43 @@ export function bom(p: Project): BomLine[] {
       lines.set(key, line);
     }
   }
+  // DIN rail and wire duct on layout sheets, bought by the stick.
+  const runs = new Map<string, { mm: number; n: number; cuts: number[] }>();
+  for (const s of p.sheets.filter((x) => x.sheet.kind === "layout")) {
+    for (const r of s.sheet.din ?? []) if (r?.part) add(r.part, r.len);
+    for (const d of s.sheet.duct ?? []) if (d?.part) add(d.part, Math.max(d.w, d.h));
+  }
+  function add(part: string, mm: number) {
+    const r = runs.get(part) ?? { mm: 0, n: 0, cuts: [] };
+    r.mm += mm;
+    r.n++;
+    r.cuts.push(mm);
+    runs.set(part, r);
+  }
+  for (const [id, r] of runs) {
+    const part = resolvePart(p.parts, id);
+    const qty = part?.stick_mm ? sticks(r.cuts, part.stick_mm) : 1;
+    lines.set(`P:${id}`, { part, id, qty, tags: [`${r.n} runs, ${Math.round(r.mm)} mm`], field: false });
+  }
   const key = (l: BomLine) => `${l.part?.manufacturer ?? "~"} ${l.part?.catalog ?? l.id}`.toLowerCase();
   return [...lines.values()].sort((a, b) => Number(a.field) - Number(b.field) || key(a).localeCompare(key(b)));
+}
+
+/** Sticks needed to cut every run from, longest run first, each into the
+ * first stick with room left (a run longer than a stick takes several). */
+export function sticks(cuts: number[], stick: number): number {
+  const left: number[] = [];
+  for (const c of [...cuts].sort((a, b) => b - a)) {
+    let need = c;
+    while (need > stick) {
+      left.push(0);
+      need -= stick;
+    }
+    const i = left.findIndex((l) => l >= need);
+    if (i >= 0) left[i] -= need;
+    else left.push(stick - need);
+  }
+  return left.length;
 }
 
 function bomPages(p: Project): ((pen: Pen) => void)[] {

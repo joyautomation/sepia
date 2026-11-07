@@ -2,5 +2,6 @@
   "manufacturer": "Eaton",
   "catalog": "HT8AAH",
   "desc": "30 mm flush pushbutton operator, black",
-  "source": "https://cdn.automationdirect.com/static/specs/eaton30mmii.pdf"
+  "source": "https://cdn.automationdirect.com/static/specs/eaton30mmii.pdf",
+  "mount": { "door": "30.5mm", "size_mm": [44, 57, 55] }
 }

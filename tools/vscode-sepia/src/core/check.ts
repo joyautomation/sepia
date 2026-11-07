@@ -5,6 +5,7 @@
 import { buildIndex, resolvePart, splitPiece, splitTerminal } from "./model.ts";
 import { conductors, numberedWires } from "./conductors.ts";
 import { isGenerated } from "./generated.ts";
+import { checkLayout, unmounted } from "./backpanel.ts";
 import { DEFAULT_COLS, sheetKind, SYMBOLS } from "./symbols.ts";
 import type { Problem, Project } from "./types.ts";
 
@@ -77,6 +78,11 @@ export function check(p: Project): Problem[] {
       if (sh.place?.length) add("warning", file, "sheet-generated", `a ${sh.kind} sheet is generated from the data; its "place" list is ignored`, `"place"`);
       continue;
     }
+    if (sh.kind === "layout") {
+      out.push(...checkLayout(p, s, ix));
+      if (sh.place?.length) add("warning", file, "sheet-layout", `a layout sheet mounts devices ("mount"); its "place" list is ignored`, `"place"`);
+      continue;
+    }
     const kind = sheetKind(sh.kind);
     if (!kind) add("info", file, "sheet-kind", `sheet kind "${sh.kind}" isn't drawn yet`);
     const cols = sh.cols ?? DEFAULT_COLS[kind ?? "ladder"];
@@ -118,6 +124,10 @@ export function check(p: Project): Problem[] {
         add("info", "panel.json", "term-undrawn", `wire ${w.no}: ${t} (${info.piece.ref}) isn't on any sheet`, `"${t}"`);
     }
   }
+
+  // Devices nobody mounted, once there's a layout sheet to mount them on.
+  for (const tag of unmounted(p, ix))
+    add("info", "panel.json", "unmounted", `${tag} isn't mounted on the layout`, `"tag": "${tag}"`);
 
   checkLineNumbers(p, ix, add);
   checkSccr(p, add);

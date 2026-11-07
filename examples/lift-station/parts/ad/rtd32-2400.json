@@ -9,5 +9,5 @@
     "nc": { "symbol": "nema/ol-nc", "terminals": ["95", "96"] },
     "no": { "symbol": "nema/contact-no", "terminals": ["97", "98"] }
   },
-  "mount": { "on": "contactor" }
+  "mount": { "on": "contactor", "size_mm": [45, 66, 85] }
 }

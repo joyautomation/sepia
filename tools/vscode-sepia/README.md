@@ -38,7 +38,7 @@ Then either:
 
 Open `sheets/01-power.sheet.json` or `sheets/03-pump-1-control.sheet.json`.
 It opens as a drawing; use "Reopen Editor With… → Text Editor" to see the
-JSON. The left panel lists all nine sheets.
+JSON. The left panel lists every sheet in the set.
 
 ### Things to try
 
@@ -66,9 +66,17 @@ JSON. The left panel lists all nine sheets.
    `"default": "line"` puts it back. Field conductors follow `"field"`.
 8. **Generated pages:** open the BOM, wire list or terminal plan. Rename a
    part's catalog number or add a wire in `panel.json` and they redraw.
-9. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
+9. **Panel layout** (`13-layout.sheet.json`): the backpanel and the door
+   to scale, with every mounted part listed. Drag a DIN part along its
+   rail or onto another rail; dropped on top of another part, it slides
+   to the nearest free stretch. Drives, the transformer and the door
+   operators move in 5 mm steps. Drag a drive up into the top duct and the
+   Problems panel says how far into its 60 mm airflow clearance it went.
+   Delete takes a part off; it shows under "Not mounted", and you can
+   drag it back. The BOM now counts DIN rail and duct by the stick.
+10. **Print PDF** (the header button, or "sepia: Print Drawing Set to PDF")
    writes every sheet to one PDF. It's the same drawing as on screen.
-10. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
+11. Keys: **F** fits the sheet, **P** hides or shows the side panels, the
    mouse wheel zooms, and dragging the background pans.
 
 ### Revisions from git tags
@@ -121,7 +129,12 @@ symbol on the wrong kind of sheet (a 3-pole contactor on a ladder); a part
 drawn twice; wire numbers that don't follow line numbering (302, 302A,
 302B; 103L1 on a power branch); and panel SCCR against the available fault
 current computed from `sepia.json`'s `service` (transformer kVA and %Z).
-SCCR takes the lowest rating of any device, assemblies included.
+SCCR takes the lowest rating of any device, assemblies included. On a
+layout sheet: parts that overlap each other, the duct or a rail; parts off
+the end of their rail or off the backpanel or door; a drive's clearance
+with something in it; a part mounted the wrong way (a DIN part screwed to
+the backpanel); a part with no size; rails off the backpanel or under duct;
+and every device in the enclosure that nobody mounted.
 
 ## Not yet
 
@@ -130,7 +143,8 @@ SCCR takes the lowest rating of any device, assemblies included.
   it could ship quickly. It ports cleanly.
 - Symbols are built in (`src/core/sheetDraw.ts`). Project symbols as JSON
   primitives come next.
-- No panel layout or 3D yet, and no network sheet.
+- No 3D view yet, and no network sheet. The layout has no auto-pack: an
+  agent (or you) writes the mounts.
 - Grounding conductors aren't modelled (the SPD's ground, the bonded X2 of
   the transformer, the ground bar).
 - A few parts in the example have terminal names by function where the

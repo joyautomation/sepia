@@ -7,5 +7,6 @@
   "pieces": {
     "htr": { "symbol": "nema/heater", "terminals": ["L", "N"] }
   },
-  "ratings": { "watts": 550 }
+  "ratings": { "watts": 550 },
+  "mount": { "din": "35mm", "size_mm": [100, 165, 132] }
 }

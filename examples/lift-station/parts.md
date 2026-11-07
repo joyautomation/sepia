@@ -92,8 +92,8 @@ Floats and the level transmitter go through intrinsically safe devices
 | Alarm reset pushbutton | PB1 | Eaton HT800 (AD) | HT8AAHA (or HT8AAH + HT8E for a DI) | black flush, 1 N.O. | 30.5 mm | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/pushbuttons_-z-_switches_-z-_indicators/pushbuttons/ht8aaha) | verified |
 | Beacon + horn, one unit | BCN1 | Pfannenberg PYRA (AD) | 21556818055 | 12–48 VDC; light 120 mA, sounder 15 mA, separate inputs; 101 dB; colour selectable; NEMA 4/4X | 166×114×134 | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/pushbuttons_-z-_switches_-z-_indicators/signaling_devices/audible-visual_signaling_devices/21556818055) | verified |
 | Interposing relay + socket | CRx | AD | 782-2C-24D + 782-2C-SKT | 24 VDC coil 1.15 W; DPDT 15 A | — | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/relays_-z-_timers/electro-mechanical_relays/782-2c-24d) | verified |
-| Enclosure | ENC | Hammond Eclipse (AD) | EN4SD603612SSWH | 60×36×12 in, 304 SS (white powder coat), NEMA 3R/4/4X/12/13 | 914×1524×305 | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosures_-a-_racks/wall-mount_enclosures/en4sd603612sswh) | verified |
-| Backpanel | ENC-BP | Hammond (AD) | EP6036 | 12 ga steel, 34.17×58.17 in | 868×1478 | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosures_-a-_racks/subpanels/ep6036) | verified |
+| Enclosure | ENC | Hammond Eclipse | EN4SD723612SSR | 72×36×12 in, 304 SS, NEMA 3R/4/4X/12/13 (was the 60×36 EN4SD603612SSWH: assumption 26) | 914×1829×305 | yes | [Standard Electric](https://www.standardelectricsupply.com/Hammond-Manufacturing-EN4SD723612SSR-Eclipse-Single-Door-Enclosure) | verified |
+| Backpanel | ENC-BP | Hammond | EP7236 | 12 ga steel, 34.2×70.2 in | 869×1783 | yes | [Standard Electric](https://www.standardelectricsupply.com/Hammond-Manufacturing-EP7236-Inner-Panel) | verified |
 | Inner swing-out dead front | ENC-SP | Hammond (AD) | ESP6036 | 12 ga steel, 33.79×57.75 in | 858×1467 | ? | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosures_-a-_racks/enclosure_parts_-a-_accessories/swing_panels/esp6036) | partly |
 | Air conditioner | AC1 | Stratus (AD) | TA10-059-16-4X (or TA10-033-16-4X, 3300 BTU/h) | 5910 BTU/h (≈1730 W); 115 VAC, 6.14 A run, **32.3 A inrush**, 12 A TD fuse; Type 4X | — | yes | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosures_-z-_subpanels_-z-_thermal_management_-z-_lighting/enclosure_thermal_management/air_conditioners/ta10-059-16-4x) | verified |
 | Heater with thermostat | HTR1 | Stego (AD) | 027009-01 | 550 W 120 VAC (≈4.6 A); thermostat 0–60 °C; UL Recognized | — | no | [AD](https://www.automationdirect.com/adc/shopping/catalog/enclosure_thermal_management_-a-_lights/heaters/027009-01) | verified |
@@ -173,7 +173,7 @@ not a person (design.md §5).
     listing's maximum. That's 163 % of the 6.14 A running current, and a
     time-delay fuse rides through the 32 A start. (Changed 11-07: this was
     CB5.)
-11. **Enclosure: keep the 60×36×12 in Hammond and drop the swing-out dead
+11. **Enclosure: keep the Hammond (now 72×36×12 in, assumption 26) and drop the swing-out dead
     front (ESP6036).** The operators go on the main door. Depth check:
     305 mm − ≈15 mm standoff − 190 mm drive = 100 mm, which clears the
     ≈70 mm operator bodies as long as no operator sits directly in front of
@@ -250,3 +250,53 @@ not a person (design.md §5).
     position, the Gladiator breaker and Edison holder markings, and the
     M2000's terminals. Those parts say so in their `notes`.
 
+## Assumptions added laying out the panel (11-07)
+
+Sizes are in each part's `mount.size_mm` (width along the rail, height,
+depth), read from AutomationDirect, Phoenix, Moxa, Stego, Pfannenberg,
+Stratus and Hammond drawings and datasheets. The estimated ones are listed
+in 31.
+
+26. **The enclosure goes up to 72×36×12 in (EN4SD723612SSR, EP7236
+    backpanel); 60×36 doesn't fit.** The 60×36 backpanel is 868×1478 mm.
+    Its top 480 mm goes to the two drives: 320 mm tall, plus the GS4's
+    60 mm above and below, plus top duct. Each DIN row is a 60 mm duct and
+    about 160–290 mm of parts, and five of them are needed. Rail parts
+    total about 2,100 mm against 708 mm of usable rail per row, so three
+    full rows plus the terminal row. Add the UPS battery's 50 mm above and
+    below (191 mm tall) and the 190 mm transformer, and it comes to about
+    1,780 mm. The 72 in panel is 1,783 mm, with the transformer and heater
+    at the bottom. The SSR (plain 304) finish replaces the white-painted
+    SSWH, which isn't made in 72 in. This is the largest single-door size
+    in the series. Anything more goes to two enclosures (drives apart:
+    PNL-P03).
+27. **Layout, top to bottom:** panel light; top duct; the two drives side
+    by side with their clearances, and Q1, SPD1 and rail A (phase monitor
+    and CC fuses) beside them; rail B, power (J fuse holders and the
+    interlocked contactor pairs, overloads hanging under the bypass
+    contactors); rail C, control power (breakers, 24 V supply, UPS and
+    battery, fused terminals, relays, receptacle); rail D, the controller,
+    remote I/O, switch, router and the IS barriers; and at the bottom the
+    heater, field terminals, transformer and ground bar. Field wiring comes
+    in through the bottom. Ducts are 60 mm (T1-2230G-1) between every row
+    and down both sides.
+28. **Intrinsically safe wiring is kept apart.** ISR1 and ISB1 sit at the
+    right end of rail D, and TBIS has its own short rail F, more than
+    300 mm from TB2 (NEC 504.30 asks for 50 mm). It isn't checked yet; a
+    separation check comes with segregated duct.
+29. **The door (no dead front):** a row per pump (HOA, VFD-off-bypass,
+    run, fail) and an alarm row (high level, reset), on an 80 mm × 100 mm
+    grid, about two-thirds of the way up the door. The disconnect handle
+    isn't drawn yet. The beacon is on top and the air conditioner on the
+    right side.
+30. **The air conditioner on the side is tight.** The TA10 is 300 mm
+    across its mounting face and the enclosure side is 305 mm deep. It
+    fits on paper; the side flanges may not allow it, in which case it
+    goes on the door. 3D will show it.
+31. **Estimated sizes:** Eaton HT800 operators (Eaton's sheet wasn't
+    reachable: 44×57 mm legend plates, 55 mm behind the door for
+    selectors and buttons, 70 mm for pilots); the Gladiator breakers
+    (18×90×75); OnLogic K410 depth on its DIN kit; RUT241 on its DIN kit;
+    782 relay on socket depth. The TCF7F is a flange relay made for an
+    inner-door cutout. With no dead front it goes on its 70170-D socket on
+    rail C, which takes its 54×108 mm flange as the footprint.

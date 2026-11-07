@@ -75,7 +75,7 @@ lift-station-panel/
   sheets/
     01-cover.sheet.json        generated sheets (cover, one-line, BOM, wire list) only say "include me"
     03-pump-1.sheet.json       ladder sheets: which piece is on which line
-  backpanel.json              rails, duct, and parts on rails
+    13-layout.sheet.json       the backpanel and door: rails, duct, where each device is mounted
   parts/                      project-local parts (the shared library is its own repo)
   symbols/                    project-local symbols (.svelte + .symbol.json)
 ```
@@ -222,6 +222,28 @@ the tracks stacked L1 over L2 over L3. A branch's caption comes from what
 it feeds, and the sheet can override it with `notes`. Because a coil's
 cross-reference counts the power contacts too, it reads "103 305 600"
 (power branch, interlock, aux).
+
+**Layout sheets (built 11-07) replace `backpanel.json`.** A `kind:
+"layout"` sheet gets the editor, the ops queue, live checks, printing and
+page numbering that every sheet already has, which a separate file would
+have needed again. It draws the backpanel and the door side by side, to a
+standard scale (1:4 to 1:20, the smallest that fits), with a table of
+every mounted part. Everything is in mm. The sheet names the `enclosure`
+device and lists DIN rails (`din`: id, x, centreline y, length), wire duct
+(`duct`: x, y, w, h) and where each device is mounted (`mount`). A mount
+is `{ "device", "on", "x", "y" }`, and `on` says what it's on: a rail id
+(x along it), `"door"`, `"top"`/`"left"`/`"right"` (outside the
+enclosure), another device's tag (an overload under its contactor), or
+nothing (screwed to the backpanel). Sizes come from the part's
+`mount.size_mm` (width along the rail, height, depth), the enclosure's from
+`enclosure.size_mm`, and the backpanel's from `panel.size_mm` on a part in
+the enclosure's BOM. A part's `mount.clearance_mm` (a drive's airflow) is
+drawn dashed and checked. Rails and duct with a `part` are totalled into
+the BOM by the stick. In the editor a DIN part snaps to the nearest rail
+and slides to the nearest free stretch of it. Anything else moves in 5 mm
+steps and stays on its face. The checker reports overlaps, parts off a rail
+or the backpanel, clearances, the wrong kind of mount and devices nobody
+mounted, with the numbers in each message.
 
 ### 3.3 Parts and symbols
 
@@ -370,7 +392,7 @@ The lesson's job is "Name every part in the lift-station panel and say what
 it's for."
 
 - `panel.json` with the lift-station devices (wires can be present and
-  aren't checked yet). About 15 part files with sizes, and `backpanel.json`
+  aren't checked yet). About 15 part files with sizes, and a layout sheet
   with rails, duct and mounts.
 - **Auto-layout:** the AI or the core packs the parts onto rails. You drag
   them along a rail to adjust, which writes the offset.

@@ -11,5 +11,5 @@
       { "ka": 10 }
     ]
   },
-  "mount": { "din": "35mm", "width_mm": 18 }
+  "mount": { "din": "35mm", "size_mm": [18, 90, 75] }
 }

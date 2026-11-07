@@ -19,7 +19,7 @@ export type Seg =
 export type TextStyle = { size: number; anchor?: "start" | "middle" | "end"; bold?: boolean; color?: string; vertical?: boolean };
 
 /** What a primitive belongs to, so the editor can hit-test and highlight. */
-export type Meta = { piece?: string; wire?: string };
+export type Meta = { piece?: string; wire?: string; device?: string };
 
 export type Prim = (
   | { t: "line"; x1: number; y1: number; x2: number; y2: number; s: Stroke }

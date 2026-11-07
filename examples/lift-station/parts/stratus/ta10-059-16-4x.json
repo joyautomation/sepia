@@ -6,5 +6,6 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "ac": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "A/C" }
-  }
+  },
+  "mount": { "outside": true, "size_mm": [381, 914, 300] }
 }

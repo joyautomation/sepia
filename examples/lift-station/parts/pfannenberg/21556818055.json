@@ -7,5 +7,6 @@
   "pieces": {
     "light": { "symbol": "nema/box", "terminals": ["LIGHT+", "LIGHT-"], "text": "BEACON" },
     "horn": { "symbol": "nema/box", "terminals": ["SOUND+", "SOUND-"], "text": "HORN" }
-  }
+  },
+  "mount": { "outside": true, "size_mm": [172, 134, 114] }
 }

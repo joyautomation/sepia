@@ -14,5 +14,9 @@
     ],
     "heat_w": 380
   },
-  "mount": { "backpanel": true, "size_mm": [190, 320, 190] }
+  "mount": {
+    "backpanel": true,
+    "size_mm": [190, 320, 190],
+    "clearance_mm": { "top": 60, "bottom": 60, "left": 30, "right": 30 }
+  }
 }

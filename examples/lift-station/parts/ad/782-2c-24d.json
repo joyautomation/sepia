@@ -12,5 +12,5 @@
   "ratings": {
     "coil": { "volts": "24VDC", "watts": 1.15 }
   },
-  "mount": { "din": "35mm" }
+  "mount": { "din": "35mm", "size_mm": [24.4, 79.2, 65] }
 }

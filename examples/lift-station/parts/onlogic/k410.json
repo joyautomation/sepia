@@ -5,5 +5,6 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "pwr": { "symbol": "nema/box", "terminals": ["V+", "V-"], "text": "CONTROLLER" }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [180, 123, 65] }
 }

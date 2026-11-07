@@ -6,5 +6,6 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "lamp": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "LIGHT" }
-  }
+  },
+  "mount": { "backpanel": true, "size_mm": [700, 100, 44] }
 }

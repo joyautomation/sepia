@@ -10,5 +10,6 @@
     "sb": { "symbol": "box/in", "terminals": ["7"] },
     "seal": { "symbol": "nema/contact-no", "terminals": ["11", "9"] },
     "temp": { "symbol": "nema/contact-no", "terminals": ["1", "4"] }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [54, 108, 105] }
 }

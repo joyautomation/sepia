@@ -8,5 +8,6 @@
     { "part": "ad/dn-ec1210" },
     { "part": "ad/dn-eb35-a", "qty": 2 }
   ],
-  "notes": "Intrinsically safe strips use light-blue terminals (NEC 504.80); catalog number to pick."
+  "notes": "Intrinsically safe strips use light-blue terminals (NEC 504.80); catalog number to pick.",
+  "mount": { "din": "35mm", "size_mm": [73.5, 55, 36] }
 }

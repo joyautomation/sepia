@@ -5,5 +5,10 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "bat": { "symbol": "nema/box", "terminals": ["-", "+"], "text": "BATTERY" }
+  },
+  "mount": {
+    "din": "35mm",
+    "size_mm": [85, 191, 110],
+    "clearance_mm": { "top": 50, "bottom": 50 }
   }
 }

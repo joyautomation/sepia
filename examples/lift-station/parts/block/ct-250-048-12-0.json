@@ -8,5 +8,5 @@
     "main": { "symbol": "power/xfmr", "terminals": ["H1", "X1", "H4", "X2"] }
   },
   "ratings": { "va": 2500, "heat_w": 118 },
-  "mount": { "backpanel": true, "size_mm": [192, 202, 190] }
+  "mount": { "backpanel": true, "size_mm": [192, 190, 202] }
 }

@@ -6,5 +6,6 @@
   "pieces": {
     "do{n}": { "symbol": "plc/do", "terminals": ["DO{n}"], "count": 16, "from": 0 },
     "ext": { "symbol": "nema/box", "terminals": ["EXT+", "EXT-"], "text": "DO SUPPLY" }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [19.5, 99, 60.5] }
 }

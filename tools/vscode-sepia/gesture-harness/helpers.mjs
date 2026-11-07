@@ -22,6 +22,7 @@ const { check } = require('../out/core/check.js');
 const { applySheetOp } = require('../out/core/ops.js');
 const { buildIndex } = require('../out/core/model.js');
 const { layoutSheet, cellCentre } = require('../out/core/ladder.js');
+const backpanel = require('../out/core/backpanel.js');
 
 export const ROOT = join(HERE, '../../../examples/lift-station');
 const REV = { rev: 'A', issued: false, date: '2026-11-07', history: [] };
@@ -46,6 +47,25 @@ export function commit(p, sheet, op) {
 export function cell(p, sheet, line, col) {
   const s = p.sheets.find((x) => x.name === sheet);
   return cellCentre(layoutSheet(p, s, buildIndex(p)).frame, line, col);
+}
+
+/** A layout sheet as the core lays it out (mm, and the sheet-unit views). */
+export function panel(p, sheet) {
+  const s = p.sheets.find((x) => x.name === sheet);
+  return backpanel.panelLayout(p, s, buildIndex(p));
+}
+/** An mm point on a face, in sheet units. */
+export const onFace = (L, face, x, y) => { const r = backpanel.toSheet(L, face, { x, y, w: 0, h: 0 }); return { x: r.x, y: r.y }; };
+/** Where the core says a device dropped at a sheet point goes. */
+export function snapAt(p, sheet, tag, pt) {
+  const L = panel(p, sheet);
+  const body = backpanel.bodyOf(p, buildIndex(p), tag);
+  return backpanel.snapMount(L, tag, body, pt.x, pt.y);
+}
+/** Layout problems for one sheet. */
+export function layoutProblems(p, sheet) {
+  const s = p.sheets.find((x) => x.name === sheet);
+  return backpanel.checkLayout(p, s, buildIndex(p));
 }
 
 /** A sheet editor on `sheet`, the project delivered and the page settled. */

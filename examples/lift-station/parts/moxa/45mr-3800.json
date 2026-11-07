@@ -6,5 +6,6 @@
   "notes": "Passive inputs, AIn+ and AIn- per channel; the returns aren't drawn yet.",
   "pieces": {
     "ai{n}": { "symbol": "plc/ai", "terminals": ["AI{n}+"], "count": 8, "from": 0 }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [19.5, 99, 60.5] }
 }

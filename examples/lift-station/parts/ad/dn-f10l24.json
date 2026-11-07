@@ -7,5 +7,5 @@
   "pieces": {
     "fuse": { "symbol": "nema/fuse", "terminals": ["1", "2"] }
   },
-  "mount": { "din": "35mm", "width_mm": 10 }
+  "mount": { "din": "35mm", "size_mm": [10.4, 68, 50] }
 }

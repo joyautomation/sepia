@@ -6,5 +6,6 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "rec": { "symbol": "nema/box", "terminals": ["L", "N"], "text": "GFCI REC" }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [52, 145, 58] }
 }

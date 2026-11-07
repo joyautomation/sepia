@@ -5,5 +5,6 @@
   "notes": "Terminal names are functional until checked against the maker's drawing.",
   "pieces": {
     "pwr": { "symbol": "nema/box", "terminals": ["V1+", "V1-"], "text": "ETH SWITCH" }
-  }
+  },
+  "mount": { "din": "35mm", "size_mm": [20, 135, 114] }
 }
