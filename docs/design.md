@@ -339,6 +339,13 @@ Later lessons add features as they need them: PNL-F06 numbering schemes and
 terminal plans, PNL-F12 load totals and supply/transformer checks, PNL-F13
 build order in 3D, and PNL-P02/P03 SCCR and heat.
 
+**Engineering checks** (James 11-06: the tooling should help decide these):
+SCCR against the available fault current (an input from the utility
+transformer and cable), CPT and supply sizing from the load totals, heat
+load against cooling, and 3D clearances. Each is a deterministic
+calculation that runs as a check, with the arithmetic shown in the message.
+The assumptions in `examples/lift-station/parts.md` are their first specs.
+
 ## 6. Open questions for James
 
 Answered 11-06: sheet types (§3.2), wire numbering by line or from-to

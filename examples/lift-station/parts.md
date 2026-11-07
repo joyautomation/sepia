@@ -1,8 +1,9 @@
-# Lift-station reference panel: parts list (draft 1)
+# Lift-station reference panel: parts list (draft 2)
 
 2026-11-06. Claude, from research agents and Joy's own catalog
-(`randd/catalog`). **For James to review as a PE before any of it becomes
-`panel.json` or part files.** The design decisions behind it are in
+(`randd/catalog`). Engineering calls are made below under **Assumptions**,
+each with its arithmetic; James reviews them in passing, not as a gate. The
+design decisions behind it are in
 `content/library/plant.md` (D1–D8). **The panel is virtual** (a 3D build, not
 a purchase), so price, stock and lead time don't matter. What matters is
 that each part is real, with published dimensions, ratings and CAD.
@@ -112,75 +113,66 @@ devices (2.6 W), two TCF7F relays (≈6 VA), the beacon and horn (3.2 W),
 eight interposing relays (9.2 W) and five pilots at the 50 mA ceiling (6 W).
 The controller, I/O, switch and router come on top. PNL-F12 adds it all up.
 
-## What the PE needs to decide or check
+## Assumptions (decided 11-06)
 
-From the power research:
+Each item states the call and the arithmetic. Every one of them is also the
+spec for a future `sepia check`, so the tool makes these calls next time,
+not a person (design.md §5).
 
-1. **Panel SCCR is 5 kA**, capped by the GH15ET contactor and RTD32 overload
-   starters (the only published rating: 60 A RK5, type 2). Everything else is
-   rated 100–200 kA. What's the available fault current at the station? A
-   pad-mount transformer often gives more than 5 kA at 480 V. If 5 kA is too
-   low, either show the Class J fuses raise it under UL 508A SB4, or swap to
-   a contactor family with published high-fault Class J ratings (Eaton XT,
-   TeSys D, A-B 100-C; not verified yet). This is a strong PNL-P02 example
-   either way.
-2. **Bypass branch protection.** JHL45 is a high-speed semiconductor fuse
-   required by the drive's listing, and it won't ride through an
-   across-the-line start (6–8 × 21 A). So the bypass has its own JDL40
-   time-delay fuses, tapped ahead of the drive fuses. Confirm the sizing and
-   the tap.
-3. **Heat: 760 W from two drives** in a sealed NEMA 4X box. That needs an
-   air conditioner or a heat exchanger. The flange kit (GS4-FMKIT-B, heatsink
-   out the back) is NEMA 1 only, so it breaks the 4X rating. (PNL-P03.)
-4. **The CPT is too small at 500 VA** (4.17 A). It can't carry the
-   receptacle, the heater and the lights, and plant.md estimates about
-   1 kVA of control load. Go to 1.5–2 kVA, or feed the receptacle and heater
-   separately. (PNL-F12 does the calculation.) Is a UL Recognized
-   transformer acceptable?
-5. **Drive rating vs. nameplate.** The GS4-4015 VT output is 24 A. If the
-   pump's nameplate or service-factor amps are higher, use the GS4-4020.
-6. **Overloads.** Submersible pump makers often require class 10 quick-trip.
-   RTD32 is class 10A. Should the overload be in the bypass leg only (the
-   drive protects in VFD mode) or on the common motor leads?
-7. **Neutral.** The SPD is wye 4W+G, so the neutral comes into the panel. The
-   inlet and MTS above are 3-pole. Use the 4P5W inlet and a 4-pole switch if
-   the generator is separately derived or there are neutral loads.
-8. **Q1 as service disconnect** needs a service-entrance rating. Confirm the
-   70 A main fuses coordinate with a bypass start and with the 45 A drive
-   fuses.
-9. **SPD connection point** (load side of Q1?), and whether Mersen requires
-   an overcurrent device ahead of this Type 1 unit.
+1. **Available fault current is an input, not a choice.** It comes from the
+   utility transformer and the service cable, so it lives in `sepia.json`
+   under `service`. Assumed: 150 kVA, 480Y/277 V, 2.0 %Z pad mount.
+   I = 150 000 / (√3 × 480) / 0.020 ≈ **9.0 kA** at the transformer (cable
+   impedance ignored, so this is conservative). The panel SCCR is **5 kA**,
+   limited by the GH15ET contactors and RTD32 overloads. The example
+   therefore **fails** the SCCR check on purpose. Fixing it is lesson
+   PNL-P02 (Class J fuse combination ratings under UL 508A SB4, or a
+   contactor family with published high-fault ratings).
+2. **Bypass protection as drawn:** JDL40 time-delay fuses, tapped ahead of
+   the JHL45 drive fuses. 175 % × 21 A = 36.75 A, next size up is 40 A
+   (430.52).
+3. **Heat:** two drives at 380 W is 760 W, plus sun load, so about 1.0 to
+   1.5 kW. The TA10-059 A/C (≈1730 W) stays. No flange kit, because it
+   would break the 4X rating.
+4. **CPT: 3 kVA, replacing the 500 VA unit.** The 120 V load:
 
-From the control, door and enclosure research:
+   | Load | VA |
+   |---|---|
+   | A/C, 6.14 A running | 737 |
+   | Heater | 550 |
+   | Receptacle (220.14(I)) | 180 |
+   | Light | 16 |
+   | Four contactor coils, sealed, 4 × 12 | 48 |
+   | 24 V supply, 240 W ÷ 0.9 | 267 |
+   | **Total** | **≈1800** |
 
-10. **The 120 V side is bigger than the CPT.** The air conditioner runs at
-    6.1 A with a 32 A inrush, and the heater draws 4.6 A, on top of the
-    receptacle, the light, the contactor coils and the 24 V supply. That
-    makes item 4 firmer: the CPT should be 2 kVA or more, or the AC and
-    receptacle get their own 120 V source. The AC also needs its own
-    breaker (CB5), with a 12 A time-delay fuse per its listing.
-11. **Enclosure: 60×36×12 in, Hammond**, the only stainless set where the
-    enclosure, backpanel and inner panel could all be verified. 12 in deep
-    with a swing panel in front of 190 mm-deep drives is tight; consider
-    16 in. Cooling: the 5910 BTU/h AC has margin (heat load ≈1.0–1.5 kW
-    with sun). An air-to-air exchanger can't cool below ambient. Set the
-    heater and AC thermostats so they don't fight.
-12. **Hazardous area:** Div 1 or Div 2 under NFPA 820. Check float,
-    transducer and cable entity values against the control drawings; IS
-    separation, seals and the IS ground. The transducer must run on ≥16 V
-    at 20 mA; Co/Lo come from drawing 116-0439. KFD2-SR2 with dry-contact
-    floats needs P+F's line-fault resistor network, or line-fault detection
-    off by DIP switch.
-13. **Pump protection relay sensor circuit isn't intrinsically safe.** For
-    explosion-proof pumps in a Div 1 well, follow the pump's FM listing for
-    the sensor leads (including any manual reset on over-temperature).
-    Confirm the pumps use Flygt FLA/CLS sensors. (Genuine Flygt MiniCAS
-    14-407129 only appears on distributor pages.)
-14. **Hand is hardwired, independent of the PC?** (D6 says yes.) Use HT8E
-    gold blocks for contacts that only feed a 24 VDC input, and HT8A where
-    they switch 120 VAC coils.
-15. **UL status** of the ground bar (SCE-GB10) and door switch (013500-00):
-    no UL file shown. Accept or substitute. The panel light has no
-    external-switch input, so the door switch breaks its 120 V feed (or use
-    the motion-sensor model 122140-00).
-16. **The beacon on the enclosure top** needs a listed Type 4X hub.
+   2 kVA would carry that at 90 %. 3 kVA leaves room for the A/C's 32 A
+   inrush. The catalog number will be picked when the 3D part is made.
+5. **Drive:** GS4-4015 holds. The pump is 15 hp at 460 V, 21 A per NEC
+   Table 430.250, under the 24 A VT rating.
+6. **Overloads:** in the bypass leg only. In VFD mode the drive protects the
+   motor.
+7. **Neutral:** it comes in for the SPD only. Every 120 V load is on the CPT.
+   The transfer is 3-pole with a solid neutral, so the generator inlet is
+   HBL5100B7W (4P5W).
+8. **Q1 is not the service disconnect.** The utility meter-main upstream is
+   the service disconnect. Q1 is the panel main, and its 70 A fuses sit
+   above both the 45 A drive fuses and the 40 A bypass fuses.
+9. **SPD on the load side of Q1**, so Q1's fuses protect it.
+10. **A/C on its own breaker, CB5,** with a 12 A time-delay fuse per its
+    listing.
+11. **Enclosure: keep the 60×36×12 in Hammond and drop the swing-out dead
+    front (ESP6036).** The operators go on the main door. Depth check:
+    305 mm − ≈15 mm standoff − 190 mm drive = 100 mm, which clears the
+    ≈70 mm operator bodies as long as no operator sits directly in front of
+    a drive. That becomes a 3D clearance check.
+12. **Wet well: Class I, Div 1** (an unventilated wet well under NFPA 820).
+    Floats go through KFD2-SR2 with line-fault detection off by DIP switch.
+    The level transmitter goes through KFD2-STC5. Pump sensor leads follow
+    the pump's FM listing.
+13. **Hand is hardwired** (D6). HT8E gold blocks feed 24 VDC inputs, and
+    HT8A blocks switch 120 VAC coils.
+14. **The ground bar and door switch without UL files** are accepted for
+    the example. The beacon gets any listed Type 4X hub.
+15. **Wire numbering** (James 11-06): line numbers inside the panel,
+    from-to at the field terminals.
