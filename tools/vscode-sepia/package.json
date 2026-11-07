@@ -41,6 +41,10 @@
       {
         "command": "sepia.check",
         "title": "sepia: Check Project"
+      },
+      {
+        "command": "sepia.print",
+        "title": "sepia: Print Drawing Set to PDF"
       }
     ]
   },

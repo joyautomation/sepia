@@ -26,6 +26,10 @@ export async function run(): Promise<void> {
   await ext.activate();
   console.log("activated");
 
+  const cmds = await vscode.commands.getCommands(true);
+  for (const c of ["sepia.print", "sepia.check"]) if (!cmds.includes(c)) throw new Error(`command ${c} isn't registered`);
+  console.log("ok: commands registered");
+
   // Problems: the SCCR check on sepia.json, before any sheet is open.
   await until("sccr diagnostic", () => codes("sepia.json").includes("sccr"));
   console.log("ok: SCCR diagnostic on sepia.json");

@@ -2,20 +2,17 @@
   // One ladder sheet on paper. Everything drawn here is computed from the
   // project (core/ladder.ts); the only thing a gesture changes is where a
   // piece sits.
-  import type { Project } from "../src/core/types.ts";
+  import type { Project, SheetFile } from "../src/core/types.ts";
   import { cellAt, cellCentre, SHEET, type LadderLayout } from "../src/core/ladder.ts";
-  import { SYMBOLS } from "../src/core/symbols.ts";
-  import Symbol from "./Symbol.svelte";
-  import TitleBlock from "./TitleBlock.svelte";
+  import { INK, Pen, textLeft, type Meta, type Prim } from "../src/core/draw.ts";
+  import { drawSheet, drawSymbol } from "../src/core/sheetDraw.ts";
 
   type Sel = { kind: "piece"; ref: string } | { kind: "wire"; no: string } | null;
 
   let {
     project,
     layout,
-    title,
-    index,
-    count,
+    sheet,
     selected = $bindable(),
     drag,
     onpick,
@@ -24,9 +21,7 @@
   }: {
     project: Project;
     layout: LadderLayout;
-    title: string;
-    index: number;
-    count: number;
+    sheet: SheetFile;
     selected: Sel;
     /** A piece being dragged (from the sheet or the unplaced list). */
     drag: { ref: string; symbol: string; line: number; col: number; over: boolean } | null;
@@ -101,20 +96,40 @@
   }
 
   const f = $derived(layout.frame);
+  // The ink: exactly what `sepia print` writes (core/sheetDraw.ts).
+  const prims = $derived(drawSheet(project, sheet, layout));
   const selWire = $derived.by(() => {
     const s = selected;
     if (s?.kind === "wire") return new Set([s.no]);
     if (s?.kind === "piece") return new Set(layout.pieces.find((p) => p.ref === s.ref)?.ports.map((p) => p.wire).filter(Boolean) as string[]);
     return new Set<string>();
   });
-  const railY1 = $derived(f.top - 24);
-  const railY2 = $derived(f.top + (f.lines.length - 1) * f.rowH + 12);
-  const classDesc = (no: string) => {
-    const w = project.panel.wires?.find((w) => w.no === no);
-    return (w?.class && project.sepia.wireClasses?.[w.class]?.desc) || "";
-  };
-  const xrefText = (x: { line: number; nc: boolean }[]) => x;
+  const isSel = (m: Meta | undefined) =>
+    !!m && ((m.wire !== undefined && selWire.has(m.wire)) || (selected?.kind === "piece" && m.piece === selected.ref));
+  const ghost = $derived.by(() => {
+    if (!drag) return [];
+    const pen = new Pen();
+    drawSymbol(pen, drag.symbol);
+    return pen.items;
+  });
 </script>
+
+{#snippet ink(items: Prim[])}
+  {#each items as p}
+    {@const cls = { sel: isSel(p.meta), lifted: !!drag?.over && p.meta?.piece === drag.ref }}
+    {#if p.t === "line"}
+      <line class={cls} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.s.color ?? INK} stroke-width={p.s.width ?? 1} stroke-dasharray={p.s.dash?.join(" ")} />
+    {:else if p.t === "rect"}
+      <rect class={cls} x={p.x} y={p.y} width={p.w} height={p.h} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} stroke-dasharray={p.s?.dash?.join(" ")} />
+    {:else if p.t === "circle"}
+      <circle class={cls} cx={p.cx} cy={p.cy} r={p.r} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} />
+    {:else if p.t === "path"}
+      <path class={cls} d={p.d.map((s) => (s[0] === "Z" ? "Z" : `${s[0]}${s[1]},${s[2]}`)).join(" ")} fill={p.fill ?? "none"} stroke={p.s ? (p.s.color ?? INK) : "none"} stroke-width={p.s?.width ?? 1} />
+    {:else}
+      <text class={cls} x={textLeft(p)} y={p.y} font-size={p.size} font-weight={p.bold ? "bold" : "normal"} fill={p.color ?? INK}>{p.text}</text>
+    {/if}
+  {/each}
+{/snippet}
 
 <div class="canvas" bind:this={host}>
   <svg
@@ -128,90 +143,40 @@
     aria-label="sheet"
   >
     <rect class="paper" x="0" y="0" width={SHEET.w} height={SHEET.h} />
-    <g class="ink">
-      <TitleBlock {project} {title} {index} {count} />
 
-      <!-- rails -->
-      {#each [0, 1] as side}
-        {@const rx = side ? f.railR : f.railL}
-        <line class="rail" x1={rx} y1={railY1} x2={rx} y2={railY2} />
-        <text x={rx} y={railY1 - 18} class="t-wire" text-anchor="middle">{layout.rails[side]}</text>
-        <text x={rx} y={railY1 - 6} class="t-small" text-anchor="middle">{classDesc(layout.rails[side])}</text>
-      {/each}
+    <!-- drop target -->
+    {#if drag?.over}
+      {@const c = cellCentre(f, drag.line, drag.col)}
+      <rect class="drop" x={c.x - f.colW / 2} y={c.y - f.rowH / 2} width={f.colW} height={f.rowH} />
+    {/if}
 
-      <!-- line numbers -->
-      {#each f.lines as n, i}
-        <text x={f.railL - 14} y={f.top + i * f.rowH + 4} class="t-line" text-anchor="end">{n}</text>
-      {/each}
+    <g class="ink" stroke-linecap="round" stroke-linejoin="round">{@render ink(prims)}</g>
 
-      <!-- drop target -->
-      {#if drag?.over}
-        {@const c = cellCentre(f, drag.line, drag.col)}
-        <rect class="drop" x={c.x - f.colW / 2} y={c.y - f.rowH / 2} width={f.colW} height={f.rowH} />
-      {/if}
+    <!-- interaction: invisible hit areas from the layout, not the ink -->
+    {#each layout.segs as s}
+      <line class="hit" x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} data-hit
+        role="button" tabindex="-1" aria-label="wire {s.wire}"
+        onpointerdown={(e) => { e.stopPropagation(); selected = { kind: "wire", no: s.wire }; }} />
+    {/each}
+    {#each layout.pieces as pc (pc.ref)}
+      <rect
+        class="hit piece"
+        x={pc.cx - f.colW / 2 + 4}
+        y={pc.cy - f.rowH / 2}
+        width={f.colW - 8}
+        height={f.rowH}
+        data-hit
+        role="button"
+        tabindex="-1"
+        aria-label={pc.ref}
+        onpointerdown={(e) => { if (e.button !== 0) return; svg!.setPointerCapture(e.pointerId); onpick(pc.ref); }}
+      />
+    {/each}
 
-      <!-- wires -->
-      {#each layout.segs as s}
-        <line class="wire" class:sel={selWire.has(s.wire)} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} />
-        <line class="hit" x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2} data-hit
-          role="button" tabindex="-1" aria-label="wire {s.wire}"
-          onpointerdown={(e) => { e.stopPropagation(); selected = { kind: "wire", no: s.wire }; }} />
-      {/each}
-      {#each layout.dots as d}<circle class="dot" class:sel={selWire.has(d.wire)} cx={d.x} cy={d.y} r="3.5" />{/each}
-      {#each layout.labels as l}
-        <text x={l.x} y={l.y} class="t-wire" class:sel={selWire.has(l.wire)} text-anchor="middle">{l.text}</text>
-      {/each}
-      {#each layout.stubs as st}
-        <g class:sel={selWire.has(st.wire)}>
-          <line class="wire" x1={st.x} y1={st.y} x2={st.x + st.dir * 30} y2={st.y} />
-          <path class="arrow" d="M{st.x + st.dir * 30},{st.y} l{-st.dir * 7},-4 v8 z" />
-          <text x={st.x + st.dir * 36} y={st.y + 4} class="t-small" text-anchor={st.dir > 0 ? "start" : "end"}>{st.to.join(", ")}</text>
-        </g>
-      {/each}
-
-      <!-- pieces -->
-      {#each layout.pieces as pc (pc.ref)}
-        {@const ghost = drag?.ref === pc.ref && drag.over}
-        <g
-          class="piece"
-          class:sel={selected?.kind === "piece" && selected.ref === pc.ref}
-          class:dragging={ghost}
-          transform="translate({pc.cx},{pc.cy})"
-          data-hit
-          role="button"
-          onpointerdown={(e) => { if (e.button !== 0) return; svg!.setPointerCapture(e.pointerId); onpick(pc.ref); }}
-          tabindex="-1"
-          aria-label={pc.ref}
-        >
-          <rect class="hit" x={-f.colW / 2 + 4} y={-f.rowH / 2} width={f.colW - 8} height={f.rowH} />
-          <Symbol symbol={pc.info?.def.symbol ?? ""} />
-          <text y={pc.info?.def.symbol === "nema/coil" ? -16 : -14} class="t-tag" text-anchor="middle">{pc.info?.device.tag ?? pc.ref}</text>
-          {#if pc.info?.def.symbol?.startsWith("plc/")}
-            <text y="4" class="t-small" text-anchor="middle">{pc.info.def.terminals[0]}</text>
-          {:else}
-            {#each pc.ports as pt, i}
-              <text x={pt.x - pc.cx + (i ? -3 : 3)} y="12" class="t-term" text-anchor={i ? "end" : "start"}>{pc.info?.def.terminals[i]}</text>
-            {/each}
-          {/if}
-          {#if pc.position}<text y="22" class="t-small" text-anchor="middle">{pc.position}</text>{/if}
-        </g>
-        {#if pc.xref?.length}
-          <text x={f.railR + 12} y={pc.cy + 4} class="t-xref">
-            {#each xrefText(pc.xref) as r, i}<tspan text-decoration={r.nc ? "overline" : undefined}>{r.line}</tspan>{i < pc.xref.length - 1 ? " " : ""}{/each}
-          </text>
-        {/if}
-      {/each}
-
-      <!-- right-margin descriptions, from the output device on each line -->
-      {#each layout.notes as n}
-        <text x={f.railR + 90} y={f.top + (n.line - f.lines[0]) * f.rowH + 4} class="t-note">{n.text.toUpperCase()}</text>
-      {/each}
-
-      <!-- the piece in flight -->
-      {#if drag?.over}
-        {@const c = cellCentre(f, drag.line, drag.col)}
-        <g class="piece ghost" transform="translate({c.x},{c.y})"><Symbol symbol={drag.symbol} /></g>
-      {/if}
-    </g>
+    <!-- the piece in flight -->
+    {#if drag?.over}
+      {@const c = cellCentre(f, drag.line, drag.col)}
+      <g class="ink ghost" transform="translate({c.x},{c.y})" stroke-linecap="round">{@render ink(ghost)}</g>
+    {/if}
   </svg>
 </div>

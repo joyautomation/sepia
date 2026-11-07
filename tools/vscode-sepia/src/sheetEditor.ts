@@ -74,6 +74,10 @@ export class SheetEditorProvider implements vscode.CustomTextEditorProvider {
         void this.reveal(path.join(live.root, msg.file), msg.find);
         return;
       }
+      if (msg?.type === "print" && live) {
+        void vscode.commands.executeCommand("sepia.print", live.root);
+        return;
+      }
       if (msg?.type === "openSheet" && live && msg.file) {
         const uri = vscode.Uri.file(path.join(live.root, "sheets", msg.file));
         void vscode.commands.executeCommand("vscode.openWith", uri, SheetEditorProvider.viewType);

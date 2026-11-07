@@ -158,6 +158,7 @@
       <button onclick={toggleBare} title="Show or hide the side panels (P)">{bare ? "Show panels" : "Hide panels"}</button>
       <button onclick={() => sheetView?.fit()} title="Fit (F)">Fit</button>
       <button onclick={() => reveal(`sheets/${view.sheet.file}`)}>Sheet JSON</button>
+      <button onclick={() => vscode.postMessage({ type: "print" })} title="The whole set as one PDF">Print PDF</button>
       <button onclick={() => reveal("panel.json")}>panel.json</button>
     </header>
 
@@ -189,9 +190,7 @@
         bind:this={sheetView}
         project={view.p}
         layout={view.layout}
-        title={view.sheet.sheet.title ?? sheetName}
-        index={sheetIdx + 1}
-        count={project.sheets.length}
+        sheet={view.sheet}
         bind:selected
         {drag}
         onpick={pick}

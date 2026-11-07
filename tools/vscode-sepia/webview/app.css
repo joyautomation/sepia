@@ -72,39 +72,20 @@ footer { grid-area: foot; border-top: 1px solid var(--border); overflow: auto; p
 .canvas { position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 85%, #888); }
 svg { width: 100%; height: 100%; display: block; touch-action: none; }
 .paper { fill: var(--paper); filter: drop-shadow(0 2px 8px rgba(0,0,0,.35)); }
-.ink { stroke: var(--ink); stroke-width: 1.3; fill: none; font-family: "Liberation Sans Narrow", "Arial Narrow", "Roboto Condensed", sans-serif; }
-.ink text { stroke: none; fill: var(--ink); }
-.border { stroke-width: 2; }
-.border-outer { stroke-width: 1; }
-.rail { stroke-width: 2.2; }
-.wire { stroke-width: 1.3; }
-.wire.sel, .sel .wire { stroke: var(--sel); stroke-width: 2.2; }
-.dot { fill: var(--ink); stroke: none; }
-.dot.sel { fill: var(--sel); }
-.arrow { fill: var(--ink); stroke: none; }
-.sel .arrow { fill: var(--sel); }
+/* Ink colours and widths come from the primitives as attributes (the PDF's
+   source); CSS here only adds selection and drag states. */
+.ink { font-family: Helvetica, Arial, "Liberation Sans", sans-serif; }
+.ink .sel { stroke: var(--sel); }
+.ink line.sel, .ink path.sel { stroke-width: 2.2; }
+.ink text.sel, .ink circle.sel[fill="#000000"], .ink path.sel[fill="#000000"] { fill: var(--sel); }
+.ink text.sel { stroke: none; }
+.ink .lifted { opacity: .25; }
+.ghost { opacity: .9; pointer-events: none; }
+.ghost * { stroke: var(--sel); }
 .hit { stroke: transparent; stroke-width: 10; fill: transparent; cursor: pointer; }
 rect.hit { stroke: none; }
-.piece { cursor: grab; }
-.piece.sel { stroke: var(--sel); }
-.piece.sel text { fill: var(--sel); }
-.piece.dragging { opacity: .25; }
-.piece.ghost { stroke: var(--sel); opacity: .9; pointer-events: none; }
+.hit.piece { cursor: grab; }
 .drop { fill: color-mix(in srgb, var(--sel) 12%, transparent); stroke: var(--sel); stroke-dasharray: 4 3; stroke-width: 1; }
-.t-tag { font-size: 12px; font-weight: 600; }
-.t-term { font-size: 8.5px; }
-.t-small { font-size: 9px; }
-.t-line { font-size: 11px; }
-.t-wire { font-size: 10px; }
-text.t-wire.sel { fill: var(--sel); font-weight: 600; }
-.t-xref { font-size: 10px; }
-.t-note { font-size: 10px; letter-spacing: .02em; }
-.t-zone { font-size: 11px; }
-.t-head { font-size: 8px; letter-spacing: .05em; }
-.t-body { font-size: 12px; }
-.t-company { font-size: 18px; font-weight: 700; letter-spacing: .04em; }
-.t-title { font-size: 22px; font-weight: 600; }
-.t-dwg { font-size: 22px; font-weight: 700; }
-.stamp rect { stroke: #c62828; stroke-width: 1.5; fill: none; }
-.stamp text { fill: #c62828 !important; font-size: 12px; font-weight: 700; letter-spacing: .08em; }
-.spare { opacity: .7; }
+header button { white-space: nowrap; flex: none; }
+header .title, header .muted { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+header .title { flex: none; }

@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { Projects } from "./projects.ts";
+import { printToPdf } from "./printCommand.ts";
 import { SheetEditorProvider } from "./sheetEditor.ts";
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -8,6 +9,7 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     projects,
     sheets.register(),
+    vscode.commands.registerCommand("sepia.print", (root?: string) => printToPdf(projects, typeof root === "string" ? root : undefined)),
     vscode.commands.registerCommand("sepia.check", async () => {
       const n = await projects.discover();
       if (!n) void vscode.window.showInformationMessage("sepia: no sepia.json in this workspace");

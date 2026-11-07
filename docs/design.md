@@ -192,7 +192,7 @@ autoroutes a pipe between two ports.
 ### 3.3 Parts and symbols
 
 **A part is a real product** (catalog number, terminals, ratings, size, 3D
-model). **A symbol is a drawing** (a Svelte component). A part says which
+model). **A symbol is a drawing** (drawing data; see below). A part says which
 pieces it has, and which symbol and terminals each piece uses:
 
 ```json
@@ -221,11 +221,16 @@ that needs a missing rating reports "unknown", not "pass". The ratings
 listed are the ones the lessons calculate with: coil VA (PNL-F12),
 supply current, FLA, SCCR with its conditions (PNL-P02) and heat (PNL-P03).
 
-A symbol is a `.svelte` file plus a `.symbol.json`, the same pairing as a
-mimic component (`FloatSwitch.svelte` and `FloatSwitch.component.json`). The
-JSON names the connection points in order (`["1", "2"]` for a contact), so the
-part's terminal names land on them. Props are `tag`, `terminals` and `xref`
-(computed), and styling is by tokens.
+**Changed 11-06 (first slice): a symbol is drawing data, not a `.svelte`
+file.** A symbol is a few primitives (lines, circles, rectangles, paths,
+text) drawn about its origin, plus port positions in terminal order
+(`["1", "2"]` for a contact), so the part's terminal names land on them.
+The editor and `sepia print` draw the same list, which makes the PDF the
+screen by construction, and an agent can write a new symbol as JSON. The
+built-in NEMA symbols live in `core/sheetDraw.ts` and `core/symbols.ts`.
+Project symbols (`symbols/*.symbol.json`, the same primitives) come next.
+Interactive things (selection, drag, hit areas) are a layer over the ink in
+the webview, not part of the symbol.
 
 ### 3.4 `sepia.json`: project data and the template
 
@@ -270,7 +275,7 @@ revision, date, drawing number, sheet x of y.
   checks → LSP diagnostics                 symbol components (nema/*)
   derived: xrefs, line numbers,            autoroute (from the mimic editor)
     BOM, wire list, terminal plan          backpanel 2D, 3D (Threlte / hmi-3d)
-  canonical writer + structural ops        print: same components → SVG → PDF
+  canonical writer + structural ops        print: same display list → PDF
         │  sepia lsp · sepia derive · sepia edit   │
         └──────────── thin VS Code host ───────────┘
 ```
@@ -288,19 +293,23 @@ revision, date, drawing number, sheet x of y.
   (`webview-ui/src/mimic/autoroute.ts`, `ports.ts`, `portsGestures.ts`).
   Once a second user needs them, they move into a shared package with the HMI.
 
-**Rendering and printing: one set of components.** The sheet you edit and
-the sheet you print are the same Svelte components. Draft 1's "render in Go"
-idea is dropped, because symbols-as-components puts the drawing in the web
-layer.
+**Rendering and printing: one display list** (changed 11-06, first slice).
+`core/sheetDraw.ts` turns a sheet into primitives (the frame, the title
+block and the ladder). The webview renders them as SVG, and `sepia print`
+writes them as PDF with a hand-written PDF 1.4 writer (adapted from
+nautilus PR #557) using the built-in Helvetica faces. So there's no browser,
+no PDF library and no Svelte server-side render. The earlier plan
+(Svelte SSR → SVG → SVG-to-PDF) would have needed an SSR bundle, an SVG
+parser and inline styles for something the display list gets for free.
 
-- **Print:** `sepia print` renders every sheet to SVG with Svelte's
-  server-side `render()` in Node, with no browser. The pages are then
-  assembled into a PDF with an SVG-to-PDF writer (svg2pdf.js or pdfkit, to be
-  chosen; PR #557's hand-written PDF writer is the fallback). The same path
-  runs in the browser later.
-- **Text measurement** without a DOM uses a fixed drawing font with known
-  widths (PR #557 had the same problem and used a monospace fallback). CAD
-  drawings use a single plain font anyway.
+- **Print:** `sepia print [dir] [-o file.pdf]` or "sepia: Print Drawing Set
+  to PDF" writes every sheet, one page each, named by drawing number and
+  revision (`LS1-E-A.pdf`, `LS1-E-B-draft.pdf`).
+- **Text measurement** uses Helvetica's published widths, and the screen
+  asks for Helvetica or Arial, which share them, so anchored text lines up
+  the same in both.
+- **The title block** is one function (`drawFrame` in `core/sheetDraw.ts`),
+  filled from `sepia.json`, git and the sheet list.
 - **Derived data** (xrefs, BOM, wire list) is computed by the Go core and
   handed to the components as props, so the sheet and the CSV can't
   disagree.
