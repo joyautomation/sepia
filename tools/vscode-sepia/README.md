@@ -20,7 +20,10 @@ Then either:
 
 - **F5:** open `tools/vscode-sepia` in VS Code and press F5. The
   "sepia: lift-station example" launch opens a second window on
-  `examples/lift-station`.
+  `examples/lift-station`. F5 doesn't build. Run `npm run build` in a
+  terminal first, or keep `npm run watch` running. (A pre-launch npm task
+  fails over Remote-SSH when node comes from nvm, because the server's task
+  shell never loads nvm.)
 - **Install it:** run `npm run package`, then
   `code --install-extension sepia-0.0.1.vsix`, then open
   `examples/lift-station` as a folder.
