@@ -6,13 +6,14 @@ says which line and column each piece sits on. Wires, wire numbers,
 cross-references, line descriptions and the title block are all computed
 from that data.
 
-Two sheet kinds are placed by hand: **ladder** (rungs between two rails)
-and **power** (three-phase branches hanging off a bus). Four are generated
+Three sheet kinds are placed by hand: **ladder** (rungs between two
+rails), **power** (three-phase branches hanging off a bus) and **layout**
+(the backpanel and door to scale, parts on DIN rails). Four are generated
 from the data: **cover**, **bom**, **wires** and **terminals**. The
 example, `examples/lift-station`, is the whole lift-station panel: a cover,
 nine schematics (power, 120 VAC and 24 VDC distribution, both pumps'
-control, inputs, outputs, analog), the bill of materials, the wire list and
-the terminal plan. That's 16 pages.
+control, inputs, outputs, analog), the bill of materials, the wire list,
+the terminal plan and the panel layout. That's 17 pages.
 
 ## Try it
 

@@ -26,7 +26,7 @@ Environment:
 - `SEPIA_BUNDLE=<dir>`: test another build's `sheet.js` / `sheet.css`.
   Point it at a deliberately broken build to see a test go red.
 - `HEADED=1`: a visible window.
-- `GESTURE_CLIPS=<dir>`: record each test to `<dir>/sheet/NN-<slug>.mp4`,
+- `GESTURE_CLIPS=<dir>`: record each test to `<dir>/<suite>/NN-<slug>.mp4`,
   listed with pass/fail in `<dir>/index.html`. Needs `ffmpeg`.
 - `GESTURE_CPU_THROTTLE=<n>`: slow the page n times, to shake out timing.
 
@@ -36,7 +36,8 @@ Environment:
 |------|------|
 | `host.html` | Stands in for the webview shell. Loads the bundle; `window.__*` helpers only read the page (sheet↔screen mapping, drop target, ghost, panels). |
 | `helpers.mjs` | `Editor`: open a sheet, deliver a project, drag, click, press keys, read the posted ops. `commit()` applies an op the way the host does and returns the project it would send next; `cell()` gives a cell's centre from the same layout the webview draws. |
-| `sheet.test.mjs` | The suite. |
+| `sheet.test.mjs` | Ladder, power and generated sheets: drag, drop on a taken cell, Not drawn, Delete, Escape, select, pan, zoom, fit, paging. |
+| `layout.test.mjs` | The panel layout: a DIN part along and across rails, onto another part (it slides to free rail), a door operator, Delete, Not mounted, a drop off every rail. |
 | `cdp.mjs`, `wait.mjs`, `clips.mjs` | Chrome over CDP, waiting on the page rather than the clock, clip recording. |
 
 ## Adding a case

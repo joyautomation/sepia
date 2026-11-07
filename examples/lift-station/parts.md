@@ -286,8 +286,10 @@ in 31.
     separation check comes with segregated duct.
 29. **The door (no dead front):** a row per pump (HOA, VFD-off-bypass,
     run, fail) and an alarm row (high level, reset), on an 80 mm × 100 mm
-    grid, about two-thirds of the way up the door. The disconnect handle
-    isn't drawn yet. The beacon is on top and the air conditioner on the
+    grid, about two-thirds of the way up the door. The top row starts at
+    650 mm down the door, 62 mm below the drives' bottom edge (565 mm on
+    the backpanel plus its 23 mm inset), so no operator sits in front of a
+    drive: the depth check in 11. The disconnect handle isn't drawn yet. The beacon is on top and the air conditioner on the
     right side.
 30. **The air conditioner on the side is tight.** The TA10 is 300 mm
     across its mounting face and the enclosure side is 305 mm deep. It
